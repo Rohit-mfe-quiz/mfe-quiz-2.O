@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#5865f2">
+    <link rel="apple-touch-icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/English_language_icon.svg/1024px-English_language_icon.svg.png">
+    
+    <title>MFE QUIZZ</title>
+    <style>
+        :root { --p: #2563eb; --s: #059669; --bg: #f8fafc; --indigo: #5865f2; --wrong: #ef4444; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); display: flex; justify-content: center; padding: 15px; min-height: 100vh; align-items: center; margin: 0; }
+        .quiz-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 450px; text-align: center; position: relative;}
+        
+        .branding h1 { color: var(--indigo); margin-bottom: 0; font-size: 2.2rem; font-weight: 900;}
+        .branding p { color: var(--s); font-weight: bold; margin-top: 5px; font-size: 1.1rem; }
+        
+        select, input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 2px solid #e2e8f0; font-size: 1rem; box-sizing: border-box; font-weight: bold;}
+        .btn { background: var(--indigo); color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 1.1rem; transition: 0.2s; box-shadow: 0 4px 0px #3e48ae; margin-top:10px;}
+        .btn:active { transform: translateY(3px); box-shadow: none; }
+
+        /* Leaderboard */
+        .leaderboard { background: #f1f5f9; padding: 15px; border-radius: 12px; margin-top: 20px; text-align: left;}
+        .leaderboard h3 { margin: 0 0 10px 0; color: #1e293b; text-align: center; }
+        .leaderboard ol { padding-left: 20px; margin: 0; font-weight: bold; color: #334155; }
+        .leaderboard li { padding: 5px 0; border-bottom: 1px solid #e2e8f0;}
+
+        /* Quiz UI */
+        .timer-box { font-size: 1.5rem; font-weight: bold; color: var(--wrong); background: #fee2e2; padding: 5px 15px; border-radius: 20px; display: inline-block; margin-bottom: 10px;}
+        .word-box { font-size: 2.2rem; color: var(--p); font-weight: 800; margin: 15px 0; display: flex; align-items: center; justify-content: center; gap: 12px; }
+        .speaker-btn { background: #eff6ff; color: var(--p); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 1.2rem; }
+        .option-btn { width: 100%; padding: 14px; margin: 6px 0; border: 2px solid #e2e8f0; border-radius: 12px; cursor: pointer; font-size: 1rem; background: white; text-align: left; transition: 0.2s; font-weight: bold; color: #334155;}
+        .correct { background: #dcfce7 !important; border-color: #22c55e !important; color: #166534 !important; }
+        .wrong { background: #fee2e2 !important; border-color: #ef4444 !important; color: #991b1b !important; }
+        
+        #explanation { background: #f1f5f9; padding: 12px; border-radius: 10px; text-align: left; margin-top: 15px; border-left: 5px solid var(--p); display: none; }
+    </style>
+</head>
+<body>
+
+<div class="quiz-card">
+    
+    <div id="setup-area">
+        <div class="branding">
+            <h1>MFE QUIZZ</h1>
+            <p>made by rohit sir</p>
+        </div>
+        
+        <input type="text" id="user-name" placeholder="Student ka Naam...">
+        <select id="chapter-select"></select>
+        
+        <button class="btn" onclick="startQuiz()">▶ PLAY GAME</button>
+
+        <div class="leaderboard">
+            <h3>🏆 Top 5 Champions</h3>
+            <ol id="lb-list"></ol>
+        </div>
+    </div>
+
+    <div id="quiz-area" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items:center; margin-bottom: 10px;">
+            <span id="display-name" style="font-weight: bold; color: #64748b;"></span>
+            <span style="font-weight: bold; color: var(--indigo); font-size: 1.1rem;">⭐ <span id="score">0</span></span>
+        </div>
+        
+        <div class="timer-box" id="timer-display">⏳ 15s</div>
+        
+        <div class="word-box">
+            <span id="target-word">...</span>
+            <button class="speaker-btn" onclick="speakWord()">🔊</button>
+        </div>
+        
+        <div id="options-container"></div>
+        
+        <div id="explanation">
+            <p style="margin: 0;"><strong>Hindi:</strong> <span id="hindi-m" style="color: var(--p);"></span></p>
+            <p style="margin: 5px 0 0 0;"><strong>Ex:</strong> <span id="example-s" style="font-style: italic; color:#475569;"></span></p>
+        </div>
+        
+        <button id="next-btn" class="btn" style="display: none; background: var(--s); box-shadow: 0 4px 0px #047857;" onclick="nextQuestion()">NEXT WORD ➔</button>
+    </div>
+
+    <div id="result-area" style="display: none;">
+        <h2 style="color: var(--indigo);">Final Score!</h2>
+        <div style="font-size: 4rem; font-weight: 900; color: var(--s);" id="final-score">0</div>
+        <p style="color: #64748b; font-weight: bold;">Out of <span id="total-q">0</span></p>
+        <button class="btn" onclick="location.reload()">🏠 HOME SCREEN</button>
+    </div>
+</div>
+
+<script>
+// --- AUDIO SYSTEM (No external files needed) ---
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+
+function initAudio() {
+    if(!audioCtx) audioCtx = new AudioContext();
+    if(audioCtx.state === 'suspended') audioCtx.resume();
+}
+
+function playSound(type) {
+    if(!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    
+    if (type === 'correct') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, audioCtx.currentTime); 
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+    } else {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.start(); osc.stop(audioCtx.currentTime + 0.4);
+    }
+}
+
+// --- DATABASE ---
+const wordBank = [
+     
+    { ch: 1, w: "Improve", m: "To become better", h: "सुधार करना", e: "I want to improve my English every day." },
+    { ch: 1, w: "Practice", m: "To do something regularly to get better", h: "अभ्यास", e: "Daily practice helps in fluency." },
+    { ch: 1, w: "Crucial", m: "Very important", h: "बहुत महत्वपूर्ण", e: "Listening is crucial for language learning." },
+    { ch: 1, w: "Repeat", m: "To say again", h: "दोहराना", e: "Please repeat the sentence." },
+    { ch: 1, w: "Natural", m: "Normal and expected", h: "स्वाभाविक", e: "Mistakes are natural while learning." },
+    { ch: 1, w: "Confident", m: "Sure about yourself", h: "आत्मविश्वासी", e: "She feels confident while speaking." },
+    { ch: 1, w: "Gestures", m: "Hand or body movements to express meaning", h: "इशारे", e: "He used gestures to explain." },
+    { ch: 1, w: "Fluency", m: "Ability to speak smoothly", h: "धाराप्रवाह बोलना", e: "Practice improves fluency." },
+    { ch: 1, w: "Believe", m: "To trust", h: "विश्वास करना", e: "Believe in yourself." },
+    { ch: 1, w: "Closer", m: "Nearer", h: "करीब", e: "Hard work takes you closer to success." },
+    { ch: 2, w: "Confidence", m: "Trust in your abilities", h: "आत्मविश्वास", e: "Confidence changes personality." },
+    { ch: 2, w: "Cultivate", m: "To develop", h: "विकसित करना", e: "You can cultivate confidence." },
+    { ch: 2, w: "Determination", m: "Strong decision to succeed", h: "दृढ़ संकल्प", e: "She walked with determination." },
+    { ch: 2, w: "Positive", m: "Hopeful and good", h: "सकारात्मक", e: "Keep a positive attitude." },
+    { ch: 2, w: "Inevitable", m: "Certain to happen", h: "अनिवार्य", e: "Mistakes are inevitable." },
+    { ch: 2, w: "Encourage", m: "To support", h: "प्रोत्साहित करना", e: "Teachers encourage students." },
+    { ch: 2, w: "Supportive", m: "Giving help", h: "सहयोगी", e: "My family is supportive." },
+    { ch: 2, w: "Achievement", m: "Success", h: "उपलब्धि", e: "Winning was a big achievement." },
+    { ch: 2, w: "Celebrate", m: "To show happiness", h: "जश्न मनाना", e: "Celebrate small wins." },
+    { ch: 2, w: "Strength", m: "Power or ability", h: "ताकत", e: "Focus on your strength." },
+    { ch: 3, w: "Career", m: "Profession for long term", h: "करियर", e: "Choose a career wisely." },
+    { ch: 3, w: "Decision", m: "Final choice", h: "निर्णय", e: "It was a tough decision." },
+    { ch: 3, w: "Stressful", m: "Causing tension", h: "तनावपूर्ण", e: "Exams are stressful." },
+    { ch: 3, w: "Genuinely", m: "Truly", h: "सच में", e: "Do what you genuinely enjoy." },
+    { ch: 3, w: "Engineering", m: "Field of designing machines", h: "इंजीनियरिंग", e: "He studies engineering." },
+    { ch: 3, w: "Professionals", m: "Skilled workers", h: "पेशेवर लोग", e: "Talk to professionals." },
+    { ch: 3, w: "Internships", m: "Training jobs", h: "प्रशिक्षण", e: "Internships give experience." },
+    { ch: 3, w: "Certificates", m: "Official documents", h: "प्रमाण पत्र", e: "Skills matter more than certificates." },
+    { ch: 3, w: "Adaptability", m: "Ability to adjust", h: "अनुकूलन क्षमता", e: "Adaptability is important." },
+    { ch: 3, w: "Persistent", m: "Not giving up", h: "दृढ़ रहना", e: "Be persistent in life." },
+    { ch: 4, w: "Homemakers", m: "Women managing home", h: "गृहिणी", e: "They were homemakers." },
+    { ch: 4, w: "Delicious", m: "Very tasty", h: "स्वादिष्ट", e: "The pickles were delicious." },
+    { ch: 4, w: "Traditional", m: "Following old customs", h: "पारंपरिक", e: "They used traditional recipes." },
+    { ch: 4, w: "Ingredients", m: "Items used to make food", h: "सामग्री", e: "Quality ingredients are important." },
+    { ch: 4, w: "Entrepreneurs", m: "Business starters", h: "उद्यमी", e: "Young entrepreneurs helped them." },
+    { ch: 4, w: "Brand", m: "Product name", h: "ब्रांड", e: "JhaJi Achaar is a famous brand." },
+    { ch: 4, w: "Quality", m: "Standard of something", h: "गुणवत्ता", e: "Quality matters in business." },
+    { ch: 4, w: "Courage", m: "Bravery", h: "साहस", e: "They showed courage." },
+    { ch: 4, w: "Customers", m: "Buyers", h: "ग्राहक", e: "Customers trusted them." },
+    { ch: 4, w: "Success", m: "Achievement", h: "सफलता", e: "Hard work brings success." },
+    { ch: 5, w: "Internet", m: "Global network of computers", h: "इंटरनेट", e: "The internet connects the world." },
+    { ch: 5, w: "Secure", m: "Safe from danger", h: "सुरक्षित", e: "Keep your account secure." },
+    { ch: 5, w: "Password", m: "Secret word for access", h: "पासवर्ड", e: "Never share your password." },
+    { ch: 5, w: "Privacy", m: "Personal information safety", h: "गोपनीयता", e: "Privacy is important online." },
+    { ch: 5, w: "Cybercrime", m: "Crime done using internet", h: "साइबर अपराध", e: "Cybercrime is increasing." },
+    { ch: 5, w: "Awareness", m: "Knowledge about something", h: "जागरूकता", e: "Awareness prevents fraud." },
+    { ch: 5, w: "Hackers", m: "People who break into systems", h: "हैकर", e: "Hackers steal data." },
+    { ch: 5, w: "Download", m: "To copy from internet", h: "डाउनलोड करना", e: "Download only trusted files." },
+    { ch: 5, w: "Suspicious", m: "Doubtful", h: "संदिग्ध", e: "Ignore suspicious links." },
+    { ch: 5, w: "Protect", m: "To keep safe", h: "बचाना", e: "Protect your identity online." },
+    { ch: 6, w: "Healthy", m: "Physically fit", h: "स्वस्थ", e: "Eat healthy food daily." },
+    { ch: 6, w: "Balanced", m: "In correct proportion", h: "संतुलित", e: "A balanced diet is necessary." },
+    { ch: 6, w: "Nutrition", m: "Nourishment from food", h: "पोषण", e: "Good nutrition builds strength." },
+    { ch: 6, w: "Exercise", m: "Physical activity", h: "व्यायाम", e: "Exercise keeps you active." },
+    { ch: 6, w: "Routine", m: "Daily schedule", h: "दिनचर्या", e: "Follow a healthy routine." },
+    { ch: 6, w: "Avoid", m: "To stay away", h: "बचना", e: "Avoid junk food." },
+    { ch: 6, w: "Hydration", m: "Taking enough water", h: "जलयोजन", e: "Hydration keeps the body fresh." },
+    { ch: 6, w: "Energy", m: "Strength to work", h: "ऊर्जा", e: "Fruits give energy." },
+    { ch: 6, w: "Discipline", m: "Self-control", h: "अनुशासन", e: "Discipline improves life." },
+    { ch: 6, w: "Fitness", m: "Good physical condition", h: "तंदुरुस्ती", e: "Fitness is wealth." },
+    { ch: 7, w: "Teamwork", m: "Working together", h: "टीमवर्क", e: "Teamwork brings success." },
+    { ch: 7, w: "Cooperation", m: "Working jointly", h: "सहयोग", e: "Cooperation is important." },
+    { ch: 7, w: "Responsibility", m: "Duty", h: "जिम्मेदारी", e: "Take responsibility seriously." },
+    { ch: 7, w: "Leadership", m: "Ability to lead", h: "नेतृत्व", e: "Leadership inspires people." },
+    { ch: 7, w: "Unity", m: "Togetherness", h: "एकता", e: "Unity is strength." },
+    { ch: 7, w: "Communicate", m: "To share information", h: "संवाद करना", e: "Communicate clearly." },
+    { ch: 7, w: "Trust", m: "Belief in someone", h: "विश्वास", e: "Trust builds strong teams." },
+    { ch: 7, w: "Respect", m: "Admiration", h: "सम्मान", e: "Respect each member." },
+    { ch: 7, w: "Goal", m: "Target", h: "लक्ष्य", e: "Work towards your goal." },
+    { ch: 7, w: "Achieve", m: "To accomplish", h: "प्राप्त करना", e: "We can achieve anything together." },
+    { ch: 8, w: "Environment", m: "Surroundings", h: "पर्यावरण", e: "Protect the environment." },
+    { ch: 8, w: "Pollution", m: "Contamination", h: "प्रदूषण", e: "Pollution harms health." },
+    { ch: 8, w: "Nature", m: "Natural world", h: "प्रकृति", e: "Nature is beautiful." },
+    { ch: 8, w: "Conserve", m: "To save", h: "संरक्षण करना", e: "Conserve water." },
+    { ch: 8, w: "Recycle", m: "Use again", h: "पुनर्चक्रण", e: "Recycle plastic bottles." },
+    { ch: 8, w: "Forest", m: "Large area of trees", h: "जंगल", e: "Forests are important." },
+    { ch: 8, w: "Climate", m: "Weather condition", h: "जलवायु", e: "Climate is changing." },
+    { ch: 8, w: "Resources", m: "Useful materials", h: "संसाधन", e: "Use resources wisely." },
+    { ch: 8, w: "Wildlife", m: "Wild animals", h: "वन्यजीव", e: "Protect wildlife." },
+    { ch: 8, w: "EarthDuty", m: "Responsibility", h: "जिम्मेदारी", e: "It is our responsibility to save Earth." },
+    { ch: 9, w: "Time", m: "Measured period", h: "समय", e: "Time is precious." },
+    { ch: 9, w: "Manage", m: "To handle", h: "प्रबंधन करना", e: "Manage your time well." },
+    { ch: 9, w: "Schedule", m: "Plan of activities", h: "समय-सारणी", e: "Follow your schedule." },
+    { ch: 9, w: "Priority", m: "Most important", h: "प्राथमिकता", e: "Set your priorities." },
+    { ch: 9, w: "Deadline", m: "Last date", h: "अंतिम तिथि", e: "Meet the deadline." },
+    { ch: 9, w: "Focus", m: "Concentrate", h: "ध्यान", e: "Focus on studies." },
+    { ch: 9, w: "Productivity", m: "Efficiency", h: "उत्पादकता", e: "Productivity increases with planning." },
+    { ch: 9, w: "Distraction", m: "Something that disturbs", h: "ध्यान भंग", e: "Avoid distractions." },
+    { ch: 9, w: "Organize", m: "Arrange properly", h: "व्यवस्थित करना", e: "Organize your work." },
+    { ch: 9, w: "SuccessTime", m: "Achievement", h: "सफलता", e: "Time management leads to success." },
+    { ch: 10, w: "Motivation", m: "Inner drive", h: "प्रेरणा", e: "Motivation pushes you forward." },
+    { ch: 10, w: "Inspire", m: "To encourage", h: "प्रेरित करना", e: "Great leaders inspire people." },
+    { ch: 10, w: "Passion", m: "Strong interest", h: "जुनून", e: "Follow your passion." },
+    { ch: 10, w: "Dedication", m: "Commitment", h: "समर्पण", e: "Success needs dedication." },
+    { ch: 10, w: "Ambition", m: "Strong desire to achieve", h: "महत्वाकांक्षा", e: "She has big ambitions." },
+    { ch: 10, w: "Perseverance", m: "Continued effort", h: "दृढ़ता", e: "Perseverance brings victory." },
+    { ch: 10, w: "Challenge", m: "Difficult task", h: "चुनौती", e: "Face every challenge." },
+    { ch: 10, w: "Effort", m: "Hard work", h: "प्रयास", e: "Put in extra effort." },
+    { ch: 10, w: "Determined", m: "Firm decision", h: "दृढ़ निश्चयी", e: "He is determined to win." },
+    { ch: 10, w: "Victory", m: "Winning", h: "विजय", e: "Hard work leads to victory." },
+    { ch: 11, w: "Education", m: "Process of learning", h: "शिक्षा", e: "Education changes lives." },
+    { ch: 11, w: "Knowledge", m: "Information and understanding", h: "ज्ञान", e: "Knowledge gives power." },
+    { ch: 11, w: "Skills", m: "Ability to do something well", h: "कौशल", e: "Develop new skills." },
+    { ch: 11, w: "Institution", m: "Organization for learning", h: "संस्थान", e: "This institution is famous." },
+    { ch: 11, w: "Curriculum", m: "Course content", h: "पाठ्यक्रम", e: "The curriculum is updated." },
+    { ch: 11, w: "Examination", m: "Test of knowledge", h: "परीक्षा", e: "The examination starts tomorrow." },
+    { ch: 11, w: "Scholarship", m: "Financial aid for study", h: "छात्रवृत्ति", e: "She got a scholarship." },
+    { ch: 11, w: "Graduate", m: "Complete degree", h: "स्नातक", e: "He will graduate soon." },
+    { ch: 11, w: "Research", m: "Detailed study", h: "अनुसंधान", e: "Research improves knowledge." },
+    { ch: 11, w: "Discipline", m: "Self-control", h: "अनुशासन", e: "Discipline is important in school." },
+    { ch: 12, w: "Technology", m: "Use of scientific knowledge", h: "प्रौद्योगिकी", e: "Technology makes life easier." },
+    { ch: 12, w: "Innovation", m: "New idea", h: "नवाचार", e: "Innovation drives growth." },
+    { ch: 12, w: "Device", m: "Electronic tool", h: "उपकरण", e: "This device is useful." },
+    { ch: 12, w: "Software", m: "Computer programs", h: "सॉफ्टवेयर", e: "Install the software." },
+    { ch: 12, w: "Hardware", m: "Physical parts of computer", h: "हार्डवेयर", e: "Hardware needs repair." },
+    { ch: 12, w: "Artificial", m: "Man-made", h: "कृत्रिम", e: "Artificial intelligence is growing." },
+    { ch: 12, w: "Network", m: "Connected system", h: "नेटवर्क", e: "The network is slow." },
+    { ch: 12, w: "Data", m: "Information", h: "डेटा", e: "Save your data safely." },
+    { ch: 12, w: "Update", m: "To make current", h: "अद्यतन करना", e: "Update your phone regularly." },
+    { ch: 12, w: "Digital", m: "Related to computers", h: "डिजिटल", e: "Digital payment is easy." },
+    { ch: 13, w: "Communication", m: "Sharing information", h: "संचार", e: "Communication is key." },
+    { ch: 13, w: "Message", m: "Information sent", h: "संदेश", e: "I sent a message." },
+    { ch: 13, w: "Express", m: "To show feelings", h: "व्यक्त करना", e: "Express your thoughts." },
+    { ch: 13, w: "Conversation", m: "Talk between people", h: "बातचीत", e: "We had a conversation." },
+    { ch: 13, w: "Listen", m: "To hear carefully", h: "सुनना", e: "Listen to your teacher." },
+    { ch: 13, w: "Respond", m: "To reply", h: "जवाब देना", e: "Please respond quickly." },
+    { ch: 13, w: "Interaction", m: "Mutual action", h: "परस्पर क्रिया", e: "Classroom interaction helps learning." },
+    { ch: 13, w: "Opinion", m: "Personal view", h: "राय", e: "Share your opinion." },
+    { ch: 13, w: "Clearly", m: "In understandable way", h: "स्पष्ट रूप से", e: "Speak clearly." },
+    { ch: 13, w: "Understand", m: "To know meaning", h: "समझना", e: "I understand the lesson." },
+    { ch: 14, w: "Travel", m: "To go from one place to another", h: "यात्रा", e: "I love to travel." },
+    { ch: 14, w: "Journey", m: "Trip", h: "सफर", e: "The journey was long." },
+    { ch: 14, w: "Destination", m: "Final place", h: "गंतव्य", e: "Delhi was our destination." },
+    { ch: 14, w: "Explore", m: "To discover", h: "खोज करना", e: "Explore new places." },
+    { ch: 14, w: "Adventure", m: "Exciting experience", h: "रोमांच", e: "It was a great adventure." },
+    { ch: 14, w: "Tourist", m: "Person who travels", h: "पर्यटक", e: "Tourists visit Agra." },
+    { ch: 14, w: "Culture", m: "Way of life", h: "संस्कृति", e: "India has rich culture." },
+    { ch: 14, w: "Heritage", m: "Traditions from past", h: "विरासत", e: "Protect our heritage." },
+    { ch: 14, w: "Guide", m: "Person who shows way", h: "मार्गदर्शक", e: "The guide explained history." },
+    { ch: 14, w: "Experience", m: "Practical knowledge", h: "अनुभव", e: "Travel gives experience." },
+    { ch: 15, w: "Money", m: "Medium of exchange", h: "पैसा", e: "Money is necessary." },
+    { ch: 15, w: "Income", m: "Earnings", h: "आय", e: "His income increased." },
+    { ch: 15, w: "Expense", m: "Money spent", h: "खर्च", e: "Reduce unnecessary expense." },
+    { ch: 15, w: "Save", m: "To keep money", h: "बचत करना", e: "Save money regularly." },
+    { ch: 15, w: "Invest", m: "To put money for profit", h: "निवेश करना", e: "Invest wisely." },
+    { ch: 15, w: "Budget", m: "Financial plan", h: "बजट", e: "Prepare a monthly budget." },
+    { ch: 15, w: "Profit", m: "Financial gain", h: "लाभ", e: "The business made profit." },
+    { ch: 15, w: "Loss", m: "Financial damage", h: "हानि", e: "The company faced loss." },
+    { ch: 15, w: "Wealth", m: "Large amount of money", h: "संपत्ति", e: "Health is better than wealth." },
+    { ch: 15, w: "Debt", m: "Borrowed money", h: "कर्ज", e: "Avoid unnecessary debt." },
+    { ch: 16, w: "Friendship", m: "Bond between friends", h: "दोस्ती", e: "True friendship lasts forever." },
+    { ch: 16, w: "Loyal", m: "Faithful", h: "वफादार", e: "A loyal friend is rare." },
+    { ch: 16, w: "Honest", m: "Truthful", h: "ईमानदार", e: "Be honest with friends." },
+    { ch: 16, w: "Caring", m: "Showing concern", h: "देखभाल करने वाला", e: "She is very caring." },
+    { ch: 16, w: "Support", m: "Help", h: "सहारा", e: "Friends give support." },
+    { ch: 16, w: "Trustworthy", m: "Reliable", h: "भरोसेमंद", e: "He is trustworthy." },
+    { ch: 16, w: "Bond", m: "Strong connection", h: "रिश्ता", e: "They share a strong bond." },
+    { ch: 16, w: "Share", m: "To give part to others", h: "बाँटना", e: "Share your happiness." },
+    { ch: 16, w: "Respect", m: "Admiration", h: "सम्मान", e: "Respect your friends." },
+    { ch: 16, w: "Forever", m: "For all time", h: "हमेशा", e: "Best friends stay forever." },
+    { ch: 17, w: "Sports", m: "Physical games", h: "खेल", e: "Sports keep us fit." },
+    { ch: 17, w: "Athlete", m: "Sports person", h: "खिलाड़ी", e: "He is a good athlete." },
+    { ch: 17, w: "Competition", m: "Contest", h: "प्रतियोगिता", e: "The competition was tough." },
+    { ch: 17, w: "Practice", m: "Regular training", h: "अभ्यास", e: "Practice makes perfect." },
+    { ch: 17, w: "Tournament", m: "Series of matches", h: "टूर्नामेंट", e: "The tournament starts today." },
+    { ch: 17, w: "Victory", m: "Winning", h: "जीत", e: "The team celebrated victory." },
+    { ch: 17, w: "Defeat", m: "Loss", h: "हार", e: "Defeat teaches lessons." },
+    { ch: 17, w: "Fitness", m: "Physical health", h: "तंदुरुस्ती", e: "Sports improve fitness." },
+    { ch: 17, w: "Coach", m: "Trainer", h: "प्रशिक्षक", e: "The coach guided us." },
+    { ch: 17, w: "Team", m: "Group of players", h: "टीम", e: "Our team won." },
+    { ch: 18, w: "Social", m: "Related to society", h: "सामाजिक", e: "Social media connects people." },
+    { ch: 18, w: "Platform", m: "Online service", h: "मंच", e: "Instagram is a platform." },
+    { ch: 18, w: "Post", m: "To upload content", h: "पोस्ट करना", e: "She posted a photo." },
+    { ch: 18, w: "Comment", m: "Opinion written online", h: "टिप्पणी", e: "Leave a comment." },
+    { ch: 18, w: "Followers", m: "People who follow account", h: "अनुयायी", e: "He has many followers." },
+    { ch: 18, w: "Viral", m: "Quickly popular", h: "तेजी से फैलने वाला", e: "The video went viral." },
+    { ch: 18, w: "Content", m: "Information shared online", h: "सामग्री", e: "Create good content." },
+    { ch: 18, w: "Influence", m: "Power to affect others", h: "प्रभाव", e: "Social media has influence." },
+    { ch: 18, w: "Trend", m: "Popular style", h: "चलन", e: "This dance is trending." },
+    { ch: 18, w: "Privacy", m: "Personal space", h: "गोपनीयता", e: "Protect your privacy." },
+    { ch: 19, w: "Leader", m: "Person who leads", h: "नेता", e: "A leader inspires others." },
+    { ch: 19, w: "Vision", m: "Clear plan for future", h: "दृष्टि", e: "Leaders have vision." },
+    { ch: 19, w: "Inspire", m: "To motivate", h: "प्रेरित करना", e: "Great leaders inspire." },
+    { ch: 19, w: "Decision", m: "Choice", h: "निर्णय", e: "Leaders take decisions." },
+    { ch: 19, w: "Responsibility", m: "Duty", h: "जिम्मेदारी", e: "Leadership brings responsibility." },
+    { ch: 19, w: "Courage", m: "Bravery", h: "साहस", e: "Courage is needed." },
+    { ch: 19, w: "Influence", m: "Effect on others", h: "प्रभाव", e: "Leaders have influence." },
+    { ch: 19, w: "Strategy", m: "Plan", h: "रणनीति", e: "Strategy helps success." },
+    { ch: 19, w: "Confidence", m: "Self-belief", h: "आत्मविश्वास", e: "Confidence attracts followers." },
+    { ch: 19, w: "Integrity", m: "Honesty and strong morals", h: "ईमानदारी", e: "Integrity builds trust." },
+    { ch: 20, w: "Success", m: "Achievement", h: "सफलता", e: "Success needs hard work." },
+    { ch: 20, w: "Struggle", m: "Difficult effort", h: "संघर्ष", e: "Every success has struggle." },
+    { ch: 20, w: "Failure", m: "Not achieving goal", h: "असफलता", e: "Failure teaches lessons." },
+    { ch: 20, w: "Determination", m: "Firm decision", h: "दृढ़ संकल्प", e: "Determination leads to success." },
+    { ch: 20, w: "Opportunity", m: "Chance", h: "अवसर", e: "Grab every opportunity." },
+    { ch: 20, w: "Inspire", m: "Encourage", h: "प्रेरित करना", e: "Success stories inspire us." },
+    { ch: 20, w: "Achieve", m: "To accomplish", h: "प्राप्त करना", e: "She achieved her dream." },
+    { ch: 20, w: "Effort", m: "Hard work", h: "प्रयास", e: "Effort never goes waste." },
+    { ch: 20, w: "Dream", m: "Strong wish", h: "सपना", e: "Follow your dream." },
+    { ch: 20, w: "Journey", m: "Process towards goal", h: "यात्रा", e: "Success is a journey." },
+    { ch: 21, w: "Hospital", m: "Place for treatment", h: "अस्पताल", e: "He was admitted to the hospital." },
+    { ch: 21, w: "Doctor", m: "Medical professional", h: "डॉक्टर", e: "The doctor examined the patient." },
+    { ch: 21, w: "Patient", m: "Sick person", h: "मरीज", e: "The patient needs rest." },
+    { ch: 21, w: "Treatment", m: "Medical care", h: "इलाज", e: "The treatment worked well." },
+    { ch: 21, w: "Medicine", m: "Drug for cure", h: "दवा", e: "Take your medicine on time." },
+    { ch: 21, w: "Diagnosis", m: "Identifying illness", h: "निदान", e: "Early diagnosis saves lives." },
+    { ch: 21, w: "Surgery", m: "Medical operation", h: "शल्य चिकित्सा", e: "The surgery was successful." },
+    { ch: 21, w: "Recovery", m: "Getting better", h: "स्वस्थ होना", e: "Recovery takes time." },
+    { ch: 21, w: "Emergency", m: "Urgent situation", h: "आपातकाल", e: "It was an emergency case." },
+    { ch: 21, w: "Vaccination", m: "Protection from disease", h: "टीकाकरण", e: "Vaccination prevents illness." },
+    { ch: 22, w: "Science", m: "Study of nature", h: "विज्ञान", e: "Science explains facts." },
+    { ch: 22, w: "Experiment", m: "Scientific test", h: "प्रयोग", e: "The experiment was interesting." },
+    { ch: 22, w: "Discovery", m: "Finding something new", h: "खोज", e: "It was a great discovery." },
+    { ch: 22, w: "Theory", m: "Explanation of facts", h: "सिद्धांत", e: "The theory is proven." },
+    { ch: 22, w: "Research", m: "Detailed study", h: "अनुसंधान", e: "Scientists do research." },
+    { ch: 22, w: "Evidence", m: "Proof", h: "प्रमाण", e: "There is no evidence." },
+    { ch: 22, w: "Observe", m: "To watch carefully", h: "निरीक्षण करना", e: "Observe the reaction." },
+    { ch: 22, w: "Analyze", m: "To examine", h: "विश्लेषण करना", e: "Analyze the results." },
+    { ch: 22, w: "Laboratory", m: "Place for experiments", h: "प्रयोगशाला", e: "The laboratory is clean." },
+    { ch: 22, w: "Scientist", m: "Person who studies science", h: "वैज्ञानिक", e: "The scientist won an award." },
+    { ch: 23, w: "Art", m: "Creative work", h: "कला", e: "Art expresses feelings." },
+    { ch: 23, w: "Culture", m: "Way of life", h: "संस्कृति", e: "Indian culture is rich." },
+    { ch: 23, w: "Tradition", m: "Custom from past", h: "परंपरा", e: "We follow traditions." },
+    { ch: 23, w: "Festival", m: "Celebration", h: "त्योहार", e: "Diwali is a festival." },
+    { ch: 23, w: "Heritage", m: "Legacy", h: "विरासत", e: "Protect our heritage." },
+    { ch: 23, w: "Dance", m: "Art of movement", h: "नृत्य", e: "She loves dance." },
+    { ch: 23, w: "Music", m: "Sound art", h: "संगीत", e: "Music relaxes mind." },
+    { ch: 23, w: "Painting", m: "Art with colors", h: "चित्रकला", e: "The painting is beautiful." },
+    { ch: 23, w: "Artist", m: "Creative person", h: "कलाकार", e: "The artist is talented." },
+    { ch: 23, w: "Performance", m: "Presentation", h: "प्रस्तुति", e: "The performance was amazing." },
+    { ch: 24, w: "Business", m: "Trade activity", h: "व्यापार", e: "He runs a business." },
+    { ch: 24, w: "Market", m: "Place of buying and selling", h: "बाजार", e: "The market is crowded." },
+    { ch: 24, w: "Customer", m: "Buyer", h: "ग्राहक", e: "The customer is satisfied." },
+    { ch: 24, w: "Profit", m: "Gain", h: "लाभ", e: "The company made profit." },
+    { ch: 24, w: "Loss", m: "Damage", h: "हानि", e: "They faced heavy loss." },
+    { ch: 24, w: "Investment", m: "Putting money for return", h: "निवेश", e: "Investment is risky." },
+    { ch: 24, w: "Product", m: "Item for sale", h: "उत्पाद", e: "This product is popular." },
+    { ch: 24, w: "Service", m: "Work provided", h: "सेवा", e: "Good service builds trust." },
+    { ch: 24, w: "Strategy", m: "Plan", h: "रणनीति", e: "The strategy worked well." },
+    { ch: 24, w: "Competition", m: "Rivalry", h: "प्रतियोगिता", e: "Competition is tough." },
+    { ch: 25, w: "Government", m: "Ruling authority", h: "सरकार", e: "The government announced a new scheme." },
+    { ch: 25, w: "Policy", m: "Official plan", h: "नीति", e: "The policy helps farmers." },
+    { ch: 25, w: "Election", m: "Voting process", h: "चुनाव", e: "The election will be held soon." },
+    { ch: 25, w: "Parliament", m: "Law-making body", h: "संसद", e: "The bill was passed in parliament." },
+    { ch: 25, w: "Minister", m: "Government leader", h: "मंत्री", e: "The minister visited the village." },
+    { ch: 25, w: "Constitution", m: "Set of laws", h: "संविधान", e: "The constitution protects rights." },
+    { ch: 25, w: "Democracy", m: "Rule by people", h: "लोकतंत्र", e: "India is a democracy." },
+    { ch: 25, w: "Rights", m: "Legal freedoms", h: "अधिकार", e: "Citizens have rights." },
+    { ch: 25, w: "Duty", m: "Responsibility", h: "कर्तव्य", e: "Voting is our duty." },
+    { ch: 25, w: "Development", m: "Growth and progress", h: "विकास", e: "Development improves life." },
+    { ch: 26, w: "Law", m: "Rule of society", h: "कानून", e: "Everyone must follow the law." },
+    { ch: 26, w: "Court", m: "Place of justice", h: "अदालत", e: "The case is in court." },
+    { ch: 26, w: "Judge", m: "Decision maker in court", h: "न्यायाधीश", e: "The judge gave the verdict." },
+    { ch: 26, w: "Police", m: "Law enforcement officers", h: "पुलिस", e: "The police caught the thief." },
+    { ch: 26, w: "Crime", m: "Illegal act", h: "अपराध", e: "Crime should be punished." },
+    { ch: 26, w: "Evidence", m: "Proof", h: "सबूत", e: "There was no evidence." },
+    { ch: 26, w: "Justice", m: "Fair decision", h: "न्याय", e: "Justice was served." },
+    { ch: 26, w: "Punishment", m: "Penalty", h: "सजा", e: "He received punishment." },
+    { ch: 26, w: "Lawyer", m: "Legal advisor", h: "वकील", e: "The lawyer argued well." },
+    { ch: 26, w: "Verdict", m: "Final decision", h: " फैसला", e: "The verdict was shocking." },
+    { ch: 27, w: "Agriculture", m: "Farming", h: "कृषि", e: "Agriculture is important in India." },
+    { ch: 27, w: "Farmer", m: "Person who farms", h: "किसान", e: "The farmer works hard." },
+    { ch: 27, w: "Crop", m: "Plants grown for food", h: "फसल", e: "The crop was damaged." },
+    { ch: 27, w: "Harvest", m: "Collecting crops", h: "कटाई", e: "Harvest season started." },
+    { ch: 27, w: "Irrigation", m: "Water supply to crops", h: "सिंचाई", e: "Irrigation increases yield." },
+    { ch: 27, w: "Fertilizer", m: "Plant nutrient", h: "उर्वरक", e: "Use fertilizer carefully." },
+    { ch: 27, w: "Soil", m: "Upper layer of earth", h: "मिट्टी", e: "Soil quality matters." },
+    { ch: 27, w: "Drought", m: "Lack of rain", h: "सूखा", e: "Drought affects farmers." },
+    { ch: 27, w: "Yield", m: "Production amount", h: "उत्पादन", e: "The yield was high." },
+    { ch: 27, w: "Livestock", m: "Farm animals", h: "पशुधन", e: "Livestock supports income." },
+    { ch: 28, w: "Transport", m: "System of travel", h: "परिवहन", e: "Public transport is useful." },
+    { ch: 28, w: "Vehicle", m: "Means of transport", h: "वाहन", e: "The vehicle is new." },
+    { ch: 28, w: "Traffic", m: "Vehicles on road", h: "यातायात", e: "Traffic was heavy." },
+    { ch: 28, w: "Highway", m: "Main road", h: "राजमार्ग", e: "The highway is smooth." },
+    { ch: 28, w: "Railway", m: "Train system", h: "रेलमार्ग", e: "Railway connects cities." },
+    { ch: 28, w: "Airport", m: "Place for planes", h: "हवाई अड्डा", e: "The airport is crowded." },
+    { ch: 28, w: "Journey", m: "Trip", h: "यात्रा", e: "The journey was comfortable." },
+    { ch: 28, w: "Fare", m: "Travel cost", h: "किराया", e: "The fare increased." },
+    { ch: 28, w: "Passenger", m: "Traveler", h: "यात्री", e: "The passenger boarded the bus." },
+    { ch: 28, w: "Safety", m: "Protection", h: "सुरक्षा", e: "Safety rules are important." },
+    { ch: 29, w: "Media", m: "Communication channels", h: "मीडिया", e: "Media spreads news." },
+    { ch: 29, w: "Newspaper", m: "Printed news", h: "समाचार पत्र", e: "I read newspaper daily." },
+    { ch: 29, w: "Television", m: "TV device", h: "टेलीविजन", e: "Television shows programs." },
+    { ch: 29, w: "Journalist", m: "News reporter", h: "पत्रकार", e: "The journalist asked questions." },
+    { ch: 29, w: "Report", m: "News story", h: "रिपोर्ट", e: "The report was detailed." },
+    { ch: 29, w: "Broadcast", m: "To air program", h: "प्रसारण", e: "The match was broadcast live." },
+    { ch: 29, w: "Headline", m: "Title of news", h: "मुख्य समाचार", e: "The headline was shocking." },
+    { ch: 29, w: "Interview", m: "Formal talk", h: "साक्षात्कार", e: "He gave an interview." },
+    { ch: 29, w: "Advertisement", m: "Promotion", h: "विज्ञापन", e: "The advertisement was catchy." },
+    { ch: 29, w: "Audience", m: "Viewers", h: "दर्शक", e: "The audience enjoyed the show." },
+    { ch: 30, w: "Disaster", m: "Sudden destruction", h: "आपद", e: "The flood was a disaster." },
+    { ch: 30, w: "Flood", m: "Overflow of water", h: "बाढ़", e: "Flood damaged houses." },
+    { ch: 30, w: "Earthquake", m: "Shaking of earth", h: "भूकंप", e: "The earthquake was strong." },
+    { ch: 30, w: "Rescue", m: "Save from danger", h: "बचाव", e: "The team started rescue work." },
+    { ch: 30, w: "Relief", m: "Help after disaster", h: "राहत", e: "Relief material was distributed." },
+    { ch: 30, w: "Shelter", m: "Safe place", h: "आश्रय", e: "People moved to shelters." },
+    { ch: 30, w: "Emergency", m: "Urgent situation", h: "आपातकाल", e: "It was an emergency." },
+    { ch: 30, w: "Preparedness", m: "Being ready", h: "तैयारी", e: "Preparedness saves lives." },
+    { ch: 30, w: "Warning", m: "Alert message", h: "चेतावनी", e: "A warning was issued." },
+    { ch: 30, w: "Survival", m: "Staying alive", h: "जीवित रहना", e: "Survival needs courage." },
+    { ch: 31, w: "Personality", m: "Nature and behavior of a person", h: "व्यक्तित्व", e: "A good personality attracts people." },
+    { ch: 31, w: "Attitude", m: "Way of thinking", h: "दृष्टिकोण", e: "Keep a positive attitude." },
+    { ch: 31, w: "Confidence", m: "Self-belief", h: "आत्मविश्वास", e: "Confidence improves speaking." },
+    { ch: 31, w: "Behavior", m: "Way of acting", h: "व्यवहार", e: "Good behavior is important." },
+    { ch: 31, w: "Discipline", m: "Self-control", h: "अनुशासन", e: "Discipline builds character." },
+    { ch: 31, w: "Motivation", m: "Inner drive", h: "प्रेरणा", e: "Motivation helps success." },
+    { ch: 31, w: "Improvement", m: "Becoming better", h: "सुधार", e: "Daily improvement matters." },
+    { ch: 31, w: "Communication", m: "Sharing ideas", h: "संचार", e: "Communication skills are essential." },
+    { ch: 31, w: "Respect", m: "Admiration", h: "सम्मान", e: "Respect everyone." },
+    { ch: 31, w: "Self-esteem", m: "Self-respect", h: "आत्मसम्मान", e: "Self-esteem builds confidence." },
+    { ch: 32, w: "Bank", m: "Financial institution", h: "बैंक", e: "I opened a bank account." },
+    { ch: 32, w: "Account", m: "Banking record", h: "खाता", e: "My account is active." },
+    { ch: 32, w: "Deposit", m: "Put money in bank", h: "जमा करना", e: "Deposit money safely." },
+    { ch: 32, w: "Withdraw", m: "Take money out", h: "निकालना", e: "Withdraw cash carefully." },
+    { ch: 32, w: "Interest", m: "Extra money earned", h: "ब्याज", e: "The bank gives interest." },
+    { ch: 32, w: "Loan", m: "Borrowed money", h: "ऋण", e: "He took a loan." },
+    { ch: 32, w: "Transaction", m: "Money exchange", h: "लेन-देन", e: "The transaction failed." },
+    { ch: 32, w: "Balance", m: "Remaining money", h: "शेष राशि", e: "Check your balance." },
+    { ch: 32, w: "ATM", m: "Cash machine", h: "एटीएम", e: "I withdrew cash from ATM." },
+    { ch: 32, w: "Savings", m: "Money kept aside", h: "बचत", e: "Savings help in emergency." },
+    { ch: 33, w: "Weather", m: "Condition of atmosphere", h: "मौसम", e: "The weather is pleasant." },
+    { ch: 33, w: "Climate", m: "Long-term weather", h: "जलवायु", e: "Climate is changing." },
+    { ch: 33, w: "Rainfall", m: "Amount of rain", h: "वर्षा", e: "Rainfall was heavy." },
+    { ch: 33, w: "Temperature", m: "Degree of heat", h: "तापमान", e: "Temperature is rising." },
+    { ch: 33, w: "Humidity", m: "Moisture in air", h: "आर्द्रता", e: "Humidity is high today." },
+    { ch: 33, w: "Storm", m: "Violent weather", h: "तूफान", e: "The storm caused damage." },
+    { ch: 33, w: "Forecast", m: "Weather prediction", h: "पूर्वानुमान", e: "The forecast says rain." },
+    { ch: 33, w: "Sunshine", m: "Light from sun", h: "धूप", e: "Sunshine feels warm." },
+    { ch: 33, w: "Winter", m: "Cold season", h: "सर्दी", e: "Winter is cold." },
+    { ch: 33, w: "Summer", m: "Hot season", h: "गर्मी", e: "Summer is very hot." },
+    { ch: 34, w: "Nutrition", m: "Nourishment", h: "पोषण", e: "Nutrition keeps us healthy." },
+    { ch: 34, w: "Protein", m: "Body-building nutrient", h: "प्रोटीन", e: "Eggs contain protein." },
+    { ch: 34, w: "Vitamin", m: "Essential nutrient", h: "विटामिन", e: "Fruits give vitamins." },
+    { ch: 34, w: "Mineral", m: "Natural nutrient", h: "खनिज", e: "Milk has minerals." },
+    { ch: 34, w: "Fiber", m: "Food roughage", h: "रेशा", e: "Fiber helps digestion." },
+    { ch: 34, w: "Carbohydrate", m: "Energy nutrient", h: "कार्बोहाइड्रेट", e: "Rice has carbohydrates." },
+    { ch: 34, w: "Balanced", m: "In correct amount", h: "संतुलित", e: "Eat balanced diet." },
+    { ch: 34, w: "Diet", m: "Regular food", h: "आहार", e: "Maintain a healthy diet." },
+    { ch: 34, w: "Calories", m: "Energy units", h: "कैलोरी", e: "Avoid extra calories." },
+    { ch: 34, w: "Digestion", m: "Food breakdown process", h: "पाचन", e: "Digestion takes time." },
+    { ch: 35, w: "Conservation", m: "Protection of nature", h: "संरक्षण", e: "Conservation of water is necessary." },
+    { ch: 35, w: "Pollution", m: "Environmental damage", h: "प्रदूषण", e: "Pollution harms health." },
+    { ch: 35, w: "Recycle", m: "Use again", h: "पुनर्चक्रण", e: "Recycle plastic bottles." },
+    { ch: 35, w: "Plantation", m: "Planting trees", h: "वृक्षारोपण", e: "Plantation drives help nature." },
+    { ch: 35, w: "Ecosystem", m: "Natural system", h: "पारिस्थितिकी तंत्र", e: "Ecosystem balance is important." },
+    { ch: 35, w: "Biodiversity", m: "Variety of life", h: "जैव विविधता", e: "Biodiversity must be protected." },
+    { ch: 35, w: "Renewable", m: "Can be reused", h: "नवीकरणीय", e: "Solar energy is renewable." },
+    { ch: 35, w: "Awareness", m: "Knowledge", h: "जागरूकता", e: "Spread environmental awareness." },
+    { ch: 35, w: "Sustainable", m: "Long-lasting", h: "सतत", e: "Sustainable development is needed." },
+    { ch: 35, w: "Habitat", m: "Natural home", h: "आवास", e: "Forest is animal habitat." },
+    { ch: 36, w: "Website", m: "Online page", h: "वेबसाइट", e: "Visit the official website." },
+    { ch: 36, w: "Application", m: "Software program", h: "एप्लिकेशन", e: "Download the application." },
+    { ch: 36, w: "Cyber", m: "Related to computers", h: "साइबर", e: "Cyber security is important." },
+    { ch: 36, w: "Online", m: "Connected to internet", h: "ऑनलाइन", e: "Classes are online." },
+    { ch: 36, w: "Upload", m: "Send to internet", h: "अपलोड करना", e: "Upload your assignment." },
+    { ch: 37, w: "Speech", m: "Formal talk", h: "भाषण", e: "He gave a speech." },
+    { ch: 37, w: "ConfidencePS", m: "Confidence is key in speaking", h: "आत्मविश्वास", e: "Confidence is key in speaking." },
+    { ch: 37, w: "Eye-contact", m: "Looking at listeners", h: "नेत्र संपर्क", e: "Maintain eye-contact." },
+    { ch: 37, w: "Preparation", m: "Getting ready", h: "तैयारी", e: "Preparation reduces fear." },
+    { ch: 37, w: "PracticePS", m: "Repeated exercise", h: "अभ्यास", e: "Practice daily." },
+    { ch: 37, w: "Presentation", m: "Display of ideas", h: "प्रस्तुति", e: "The presentation was clear." },
+    { ch: 37, w: "Clarity", m: "Clear understanding", h: "स्पष्टता", e: "Speak with clarity." },
+    { ch: 38, w: "Tourism", m: "Travel industry", h: "पर्यटन", e: "Tourism boosts economy." },
+    { ch: 38, w: "Monument", m: "Historical building", h: "स्मारक", e: "The monument is beautiful." },
+    { ch: 38, w: "CultureT", m: "Way of life", h: "संस्कृति", e: "Tourists enjoy culture." },
+    { ch: 38, w: "Attraction", m: "Interesting place", h: "आकर्षण", e: "The beach is an attraction." },
+    { ch: 38, w: "Visitor", m: "Person who visits", h: "आगंतुक", e: "Many visitors came." },
+    { ch: 38, w: "Hospitality", m: "Guest service", h: "आतिथ्य", e: "Indian hospitality is famous." },
+    { ch: 39, w: "DisciplineS", m: "Self-control", h: "अनुशासन", e: "Discipline builds success." },
+    { ch: 39, w: "Habit", m: "Regular behavior", h: "आदत", e: "Good habits matter." },
+    { ch: 39, w: "DeterminationS", m: "Strong decision", h: "दृढ़ संकल्प", e: "Determination helps win." },
+    { ch: 39, w: "Commitment", m: "Promise", h: "प्रतिबद्धता", e: "Keep your commitment." },
+    { ch: 39, w: "Patience", m: "Ability to wait calmly", h: "धैर्य", e: "Patience brings results." },
+    { ch: 39, w: "Control", m: "Power over actions", h: "नियंत्रण", e: "Control your anger." },
+    { ch: 39, w: "ImprovementS", m: "Progress", h: "सुधार", e: "Daily improvement is good." },
+    { ch: 40, w: "Startup", m: "New business", h: "स्टार्टअप", e: "The startup is growing." },
+    { ch: 40, w: "InvestmentE", m: "Money put for profit", h: "निवेश", e: "Investment is necessary." },
+    { ch: 40, w: "InnovationE", m: "New idea", h: "नवाचार", e: "Innovation drives business." },
+    { ch: 40, w: "Risk", m: "Possibility of loss", h: "जोखिम", e: "Business involves risk." },
+    { ch: 40, w: "ProfitE", m: "Financial gain", h: "लाभ", e: "The company made profit." },
+    { ch: 40, w: "Marketing", m: "Promotion activity", h: "विपणन", e: "Marketing increases sales." },
+    { ch: 40, w: "Growth", m: "Development", h: "वृद्धि", e: "The business shows growth." },
+    { ch: 40, w: "SuccessE", m: "Achievement", h: "सफलता", e: "Hard work brings success." },
+    { ch: 41, w: "Values", m: "Moral principles", h: "मूल्य", e: "Good values shape character." },
+    { ch: 41, w: "Honesty", m: "Truthfulness", h: "ईमानदारी", e: "Honesty builds trust." },
+    { ch: 41, w: "Kindness", m: "Being caring", h: "दयालुता", e: "Kindness makes the world better." },
+    { ch: 41, w: "RespectHV", m: "Admiration", h: "सम्मान", e: "Respect elders." },
+    { ch: 41, w: "IntegrityHV", m: "Strong moral principles", h: "सत्यनिष्ठा", e: "Integrity is important in life." },
+    { ch: 41, w: "Compassion", m: "Sympathy for others", h: "करुणा", e: "Show compassion to the poor." },
+    { ch: 41, w: "ResponsibilityHV", m: "Duty", h: "जिम्मेदारी", e: "Responsibility makes us mature." },
+    { ch: 41, w: "Tolerance", m: "Acceptance of differences", h: "सहनशीलता", e: "Tolerance brings peace." },
+    { ch: 41, w: "Forgiveness", m: "Letting go of anger", h: "क्षमा", e: "Forgiveness gives peace." },
+    { ch: 41, w: "Gratitude", m: "Thankfulness", h: "कृतज्ञता", e: "Show gratitude daily." },
+    { ch: 42, w: "Empowerment", m: "Giving power", h: "सशक्तिकरण", e: "Education leads to empowerment." },
+    { ch: 42, w: "Equality", m: "Same rights", h: "समानता", e: "Gender equality is important." },
+    { ch: 42, w: "OpportunityWE", m: "Chance", h: "अवसर", e: "Every girl deserves opportunity." },
+    { ch: 42, w: "LeadershipWE", m: "Ability to lead", h: "नेतृत्व", e: "Women show strong leadership." },
+    { ch: 42, w: "EducationWE", m: "Learning process", h: "शिक्षा", e: "Education changes lives." },
+    { ch: 42, w: "Independence", m: "Freedom", h: "स्वतंत्रता", e: "Financial independence is key." },
+    { ch: 42, w: "ConfidenceWE", m: "Self-belief", h: "आत्मविश्वास", e: "Confidence builds strength." },
+    { ch: 42, w: "RightsWE", m: "Legal freedoms", h: "अधिकार", e: "Women have equal rights." },
+    { ch: 42, w: "AwarenessWE", m: "Knowledge", h: "जागरूकता", e: "Spread awareness in society." },
+    { ch: 42, w: "AchievementWE", m: "Success", h: "उपलब्धि", e: "She celebrated her achievement." },
+    { ch: 43, w: "Globalization", m: "Worldwide connection", h: "वैश्वीकरण", e: "Globalization connects countries." },
+    { ch: 43, w: "Economy", m: "Financial system", h: "अर्थव्यवस्था", e: "The economy is growing." },
+    { ch: 43, w: "Trade", m: "Buying and selling", h: "व्यापार", e: "International trade increased." },
+    { ch: 43, w: "Export", m: "Sell to another country", h: "निर्यात", e: "India exports goods." },
+    { ch: 43, w: "Import", m: "Buy from another country", h: "आयात", e: "We import oil." },
+    { ch: 43, w: "CultureG", m: "Way of life", h: "संस्कृति", e: "Cultures mix globally." },
+    { ch: 43, w: "CommunicationG", m: "Sharing information", h: "संचार", e: "Fast communication helps business." },
+    { ch: 43, w: "TechnologyG", m: "Scientific tools", h: "प्रौद्योगिकी", e: "Technology spreads quickly." },
+    { ch: 43, w: "MarketG", m: "Trade area", h: "बाजार", e: "Global market is competitive." },
+    { ch: 43, w: "DevelopmentG", m: "Growth", h: "विकास", e: "Development improves economy." },
+    { ch: 44, w: "CareerCP", m: "Professional path", h: "करियर", e: "Choose your career wisely." },
+    { ch: 44, w: "GoalCP", m: "Target", h: "लक्ष्य", e: "Set clear goals." },
+    { ch: 44, w: "Planning", m: "Making plan", h: "योजना", e: "Planning ensures success." },
+    { ch: 44, w: "SkillCP", m: "Ability", h: "कौशल", e: "Improve your skills." },
+    { ch: 44, w: "Qualification", m: "Educational achievement", h: "योग्यता", e: "Qualification matters." },
+    { ch: 44, w: "ExperienceCP", m: "Practical knowledge", h: "अनुभव", e: "Experience helps growth." },
+    { ch: 44, w: "OpportunityCP", m: "Chance", h: "अवसर", e: "Grab every opportunity." },
+    { ch: 44, w: "InterviewCP", m: "Job meeting", h: "साक्षात्कार", e: "Prepare for interview." },
+    { ch: 44, w: "Resume", m: "Job profile document", h: "बायोडाटा", e: "Update your resume." },
+    { ch: 44, w: "SuccessCP", m: "Achievement", h: "सफलता", e: "Hard work brings success." },
+    { ch: 45, w: "Hygiene", m: "Cleanliness practice", h: "स्वच्छता", e: "Personal hygiene is important." },
+    { ch: 45, w: "Sanitation", m: "Clean environment system", h: "स्वच्छ व्यवस्था", e: "Sanitation prevents disease." },
+    { ch: 45, w: "Cleanliness", m: "Being clean", h: "साफ-सफाई", e: "Cleanliness keeps us healthy." },
+    { ch: 45, w: "Germs", m: "Tiny harmful organisms", h: "कीटाणु", e: "Germs spread infection." },
+    { ch: 45, w: "Infection", m: "Disease spread", h: "संक्रमण", e: "Infection spreads quickly." },
+    { ch: 45, w: "Prevention", m: "Stopping before it happens", h: "रोकथाम", e: "Prevention is better than cure." },
+    { ch: 45, w: "HealthyHH", m: "Fit and well", h: "स्वस्थ", e: "Eat healthy food." },
+    { ch: 45, w: "HabitHH", m: "Regular practice", h: "आदत", e: "Good habits matter." },
+    { ch: 45, w: "Protection", m: "Safety", h: "सुरक्षा", e: "Use mask for protection." },
+    { ch: 45, w: "AwarenessHH", m: "Knowledge", h: "जागरूकता", e: "Awareness saves lives." },
+    { ch: 46, w: "HistoryIH", m: "Past events", h: "इतिहास", e: "History teaches lessons." },
+    { ch: 46, w: "Civilization", m: "Advanced society", h: "सभ्यता", e: "India has ancient civilization." },
+    { ch: 46, w: "Empire", m: "Large kingdom", h: "साम्राज्य", e: "The Mughal Empire was powerful." },
+    { ch: 46, w: "Freedom", m: "Independence", h: "स्वतंत्रता", e: "India gained freedom in 1947." },
+    { ch: 46, w: "LeaderIH", m: "Person who guides", h: "नेता", e: "The leader inspired people." },
+    { ch: 46, w: "HeritageIH", m: "Legacy", h: "विरासत", e: "Protect our heritage." },
+    { ch: 46, w: "CultureIH", m: "Way of life", h: "संस्कृति", e: "Indian culture is rich." },
+    { ch: 46, w: "MonumentIH", m: "Historic building", h: "स्मारक", e: "Taj Mahal is a monument." },
+    { ch: 46, w: "StruggleIH", m: "Difficult effort", h: "संघर्ष", e: "Freedom came after struggle." },
+    { ch: 47, w: "CommunicationCS", m: "Sharing ideas", h: "संचार", e: "Communication builds relationships." },
+    { ch: 47, w: "Speaking", m: "Talking", h: "बोलना", e: "Improve speaking skills." },
+    { ch: 47, w: "Writing", m: "Expressing in words", h: "लिखना", e: "Writing improves clarity." },
+    { ch: 47, w: "Reading", m: "Understanding written text", h: "पढ़ना", e: "Reading builds vocabulary." },
+    { ch: 47, w: "ConfidenceCS", m: "Self-belief", h: "आत्मविश्वास", e: "Confidence improves speech." },
+    { ch: 47, w: "ClarityCS", m: "Clear expression", h: "स्पष्टता", e: "Speak with clarity." },
+    { ch: 47, w: "VocabularyCS", m: "Word knowledge", h: "शब्दावली", e: "Vocabulary enhances language." },
+    { ch: 47, w: "FluencyCS", m: "Smooth speaking", h: "धाराप्रवाहता", e: "Practice improves fluency." },
+    { ch: 47, w: "ExpressionCS", m: "Showing thoughts", h: "अभिव्यक्ति", e: "Good expression matters." },
+    { ch: 48, w: "InnovationIC", m: "New idea", h: "नवाचार", e: "Innovation drives progress." },
+    { ch: 48, w: "Creativity", m: "Ability to create", h: "रचनात्मकता", e: "Creativity brings new solutions." },
+    { ch: 48, w: "Idea", m: "Thought", h: "विचार", e: "Share your idea." },
+    { ch: 48, w: "DesignIC", m: "Plan or drawing", h: "डिज़ाइन", e: "The design is unique." },
+    { ch: 48, w: "Invent", m: "Create something new", h: "आविष्कार करना", e: "He invented a machine." },
+    { ch: 48, w: "ExperimentIC", m: "Try new method", h: "प्रयोग", e: "Experiment with new ideas." },
+    { ch: 48, w: "DevelopIC", m: "Grow or improve", h: "विकसित करना", e: "Develop new skills." },
+    { ch: 48, w: "Imagine", m: "Think creatively", h: "कल्पना करना", e: "Imagine a better world." },
+    { ch: 48, w: "Original", m: "New and unique", h: "मौलिक", e: "Write original content." },
+    { ch: 48, w: "Solution", m: "Answer to problem", h: "समाधान", e: "Find a smart solution." },
+    { ch: 49, w: "Finance", m: "Money management", h: "वित्त", e: "Finance is important in life." },
+    { ch: 49, w: "BudgetFL", m: "Spending plan", h: "बजट", e: "Prepare a monthly budget." },
+    { ch: 49, w: "SavingsFL", m: "Money kept aside", h: "बचत", e: "Savings help in crisis." },
+    { ch: 49, w: "InvestmentFL", m: "Putting money for return", h: "निवेश", e: "Investment increases wealth." },
+    { ch: 49, w: "IncomeFL", m: "Earnings", h: "आय", e: "His income increased." },
+    { ch: 49, w: "ExpenseFL", m: "Money spent", h: "खर्च", e: "Reduce extra expense." },
+    { ch: 49, w: "LoanFL", m: "Borrowed money", h: "ऋण", e: "He applied for a loan." },
+    { ch: 49, w: "InterestFL", m: "Extra earning", h: "ब्याज", e: "The bank gives interest." },
+    { ch: 49, w: "ProfitFL", m: "Gain", h: "लाभ", e: "The company made profit." },
+    { ch: 49, w: "LossFL", m: "Financial damage", h: "हानि", e: "The shop faced loss." },
+    { ch: 50, w: "GrowthPG", m: "Development", h: "वृद्धि", e: "Personal growth is important." },
+    { ch: 50, w: "ImprovementPG", m: "Becoming better", h: "सुधार", e: "Improvement takes time." },
+    { ch: 50, w: "Learning", m: "Gaining knowledge", h: "सीखना", e: "Learning never stops." },
+    { ch: 50, w: "GoalPG", m: "Target", h: "लक्ष्य", e: "Set your goal clearly." },
+    { ch: 50, w: "SuccessPG", m: "Achievement", h: "सफलता", e: "Success needs effort." },
+    { ch: 50, w: "EffortPG", m: "Hard work", h: "प्रयास", e: "Put extra effort." },
+    { ch: 50, w: "DisciplinePG", m: "Self-control", h: "अनुशासन", e: "Discipline builds character." },
+    { ch: 50, w: "ConfidencePG", m: "Self-belief", h: "आत्मविश्वास", e: "Confidence leads to success." },
+    { ch: 50, w: "MotivationPG", m: "Inner drive", h: "प्रेरणा", e: "Motivation keeps you going." },
+    { ch: 50, w: "AchievementPG", m: "Accomplishment", h: "उपलब्धि", e: "Celebrate your achievement." },
+    { ch: 51, w: "TransactionDP", m: "Exchange of money", h: "लेन-देन", e: "The transaction was successful." },
+    { ch: 51, w: "UPI", m: "Instant payment system", h: "यूपीआई", e: "UPI makes payment easy." },
+    { ch: 51, w: "QRCode", m: "Scannable payment code", h: "क्यूआर कोड", e: "Scan the QR code." },
+    { ch: 51, w: "Wallet", m: "Digital money app", h: "डिजिटल वॉलेट", e: "Use a wallet for payments." },
+    { ch: 51, w: "PIN", m: "Secret number", h: "पिन", e: "Never share your PIN." },
+    { ch: 51, w: "BankDP", m: "Financial institution", h: "बैंक", e: "Link your bank account." },
+    { ch: 51, w: "AccountDP", m: "Banking record", h: "खाता", e: "My account is active." },
+    { ch: 51, w: "Refund", m: "Return of money", h: "धन वापसी", e: "I received a refund." },
+    { ch: 51, w: "BalanceDP", m: "Remaining money", h: "शेष राशि", e: "Check your balance." },
+    { ch: 52, w: "TrafficRS", m: "Vehicles on road", h: "यातायात", e: "Traffic was heavy." },
+    { ch: 52, w: "Helmet", m: "Safety headgear", h: "हेलमेट", e: "Wear a helmet." },
+    { ch: 52, w: "Seatbelt", m: "Safety strap", h: "सीट बेल्ट", e: "Fasten your seatbelt." },
+    { ch: 52, w: "Signal", m: "Traffic light", h: "सिग्नल", e: "Follow the signal." },
+    { ch: 52, w: "Pedestrian", m: "Person walking", h: "पैदल यात्री", e: "Respect pedestrians." },
+    { ch: 52, w: "Speed", m: "Fast movement", h: "गति", e: "Control your speed." },
+    { ch: 52, w: "Accident", m: "Unexpected crash", h: "दुर्घटना", e: "The accident was serious." },
+    { ch: 52, w: "SafetyRS", m: "Protection", h: "सुरक्षा", e: "Safety rules save lives." },
+    { ch: 52, w: "License", m: "Driving permit", h: "लाइसेंस", e: "Carry your license." },
+    { ch: 52, w: "Rule", m: "Regulation", h: "नियम", e: "Follow traffic rules." },
+    { ch: 53, w: "Space", m: "Outer universe", h: "अंतरिक्ष", e: "Space is vast." },
+    { ch: 53, w: "Planet", m: "Celestial body", h: "ग्रह", e: "Earth is a planet." },
+    { ch: 53, w: "Satellite", m: "Object orbiting planet", h: "उपग्रह", e: "India launched a satellite." },
+    { ch: 53, w: "Rocket", m: "Space vehicle", h: "रॉकेट", e: "The rocket launched successfully." },
+    { ch: 53, w: "Astronaut", m: "Space traveler", h: "अंतरिक्ष यात्री", e: "The astronaut explored space." },
+    { ch: 53, w: "Galaxy", m: "Group of stars", h: "आकाशगंगा", e: "The Milky Way is a galaxy." },
+    { ch: 53, w: "Orbit", m: "Path around planet", h: "कक्षा", e: "The satellite is in orbit." },
+    { ch: 53, w: "Gravity", m: "Force of attraction", h: "गुरुत्वाकर्षण", e: "Gravity pulls objects down." },
+    { ch: 53, w: "Telescope", m: "Space viewing device", h: "दूरबीन", e: "The telescope shows stars." },
+    { ch: 53, w: "Mission", m: "Space project", h: "मिशन", e: "The mission was successful." },
+    { ch: 54, w: "ArtificialAI", m: "Man-made", h: "कृत्रिम", e: "Artificial intelligence is growing." },
+    { ch: 54, w: "IntelligenceAI", m: "Ability to think", h: "बुद्धिमत्ता", e: "AI shows intelligence." },
+    { ch: 54, w: "Machine", m: "Mechanical device", h: "मशीन", e: "The machine works fast." },
+    { ch: 54, w: "Algorithm", m: "Step-by-step process", h: "कल विधि", e: "The algorithm solved the problem." },
+    { ch: 54, w: "Automation", m: "Automatic process", h: "स्वचालन", e: "Automation saves time." },
+    { ch: 54, w: "Robot", m: "Automatic machine", h: "रोबोट", e: "The robot cleaned the floor." },
+    { ch: 54, w: "DataAI", m: "Information", h: "डेटा", e: "AI uses data." },
+    { ch: 54, w: "SoftwareAI", m: "Computer program", h: "सॉफ्टवेयर", e: "Install the software." },
+    { ch: 54, w: "InnovationAI", m: "New idea", h: "नवाचार", e: "Innovation drives AI." },
+    { ch: 54, w: "TechnologyAI", m: "Scientific tools", h: "प्रौद्योगिकी", e: "Technology is advancing." },
+    { ch: 55, w: "Environment", m: "Natural surroundings", h: "पर्यावरण", e: "We must protect the environment." },
+    { ch: 55, w: "PollutionEP", m: "Environmental damage", h: "प्रदूषण", e: "Pollution is increasing." },
+    { ch: 55, w: "RecycleEP", m: "Reuse waste material", h: "पुनर्चक्रण", e: "We should recycle plastic." },
+    { ch: 55, w: "ClimateEP", m: "Weather condition", h: "जलवायु", e: "Climate is changing." },
+    { ch: 55, w: "GlobalWarming", m: "Rise in Earth’s temperature", h: "वैश्विक ऊष्मीकरण", e: "Global warming affects life." },
+    { ch: 55, w: "ConservationEP", m: "Protection of resources", h: "संरक्षण", e: "Water conservation is important." },
+    { ch: 55, w: "Natural", m: "From nature", h: "प्राकृतिक", e: "Use natural resources wisely." },
+    { ch: 55, w: "SustainableEP", m: "Long-lasting", h: "टिकाऊ", e: "Choose sustainable products." },
+    { ch: 56, w: "Entrepreneur2", m: "Business starter", h: "उद्यमी", e: "He is a young entrepreneur." },
+    { ch: 56, w: "Startup2", m: "New business", h: "स्टार्टअप", e: "She launched a startup." },
+    { ch: 56, w: "Investment2", m: "Putting money for profit", h: "निवेश", e: "Investment is necessary." },
+    { ch: 56, w: "Profit2", m: "Financial gain", h: "लाभ", e: "The company earned profit." },
+    { ch: 56, w: "Risk2", m: "Chance of loss", h: "जोखिम", e: "Business involves risk." },
+    { ch: 56, w: "Strategy2", m: "Business plan", h: "रणनीति", e: "A good strategy wins." },
+    { ch: 56, w: "Market2", m: "Place of buying-selling", h: "बाजार", e: "The market is competitive." },
+    { ch: 56, w: "Customer2", m: "Buyer", h: "ग्राहक", e: "Customer satisfaction matters." },
+    { ch: 56, w: "Revenue", m: "Total income", h: "राजस्व", e: "Revenue increased this year." },
+    { ch: 56, w: "Growth2", m: "Development", h: "विकास", e: "The company shows growth." },
+    { ch: 57, w: "Freedom2", m: "Independence", h: "स्वतंत्रता", e: "India gained freedom in 1947." },
+    { ch: 57, w: "Revolution", m: "Big change", h: "क्रांति", e: "The revolution changed history." },
+    { ch: 57, w: "Leader", m: "Person who guides", h: "नेता", e: "A leader inspires people." },
+    { ch: 57, w: "Empire", m: "Large kingdom", h: "साम्राज्य", e: "The empire was powerful." },
+    { ch: 57, w: "Dynasty", m: "Ruling family line", h: "वंश", e: "The dynasty ruled for years." },
+    { ch: 57, w: "Struggle", m: "Hard fight", h: "संघर्ष", e: "The struggle was long." },
+    { ch: 57, w: "Constitution", m: "Rule book of country", h: "संविधान", e: "The Constitution protects rights." },
+    { ch: 57, w: "Heritage", m: "Cultural legacy", h: "धरोहर", e: "India has rich heritage." },
+    { ch: 57, w: "Movement", m: "Organized effort", h: "आंदोलन", e: "The movement was peaceful." },
+    { ch: 57, w: "Nation", m: "Country", h: "राष्ट्र", e: "We love our nation." },
+    { ch: 58, w: "Confidence", m: "Self-belief", h: "आत्मविश्वास", e: "Confidence helps success." },
+    { ch: 58, w: "Discipline", m: "Self-control", h: "अनुशासन", e: "Discipline builds character." },
+    { ch: 58, w: "Motivation", m: "Inner drive", h: "प्रेरणा", e: "Motivation keeps us going." },
+    { ch: 58, w: "Goal2", m: "Target", h: "लक्ष्य", e: "Set a clear goal." },
+    { ch: 58, w: "Focus2", m: "Attention", h: "ध्यान", e: "Stay focused." },
+    { ch: 58, w: "Habit2", m: "Regular behavior", h: "आदत", e: "Good habits matter." },
+    { ch: 58, w: "Communication2", m: "Exchange of ideas", h: "संवाद", e: "Communication improves relationships." },
+    { ch: 58, w: "Leadership2", m: "Ability to lead", h: "नेतृत्व", e: "Leadership requires vision." },
+    { ch: 58, w: "Success2", m: "Achievement", h: "सफलता", e: "Success comes with effort." },
+    { ch: 59, w: "NutritionH", m: "Healthy food intake", h: "पोषण", e: "Nutrition is important." },
+    { ch: 59, w: "Immunity", m: "Disease resistance", h: "प्रतिरक्षा", e: "Immunity protects us." },
+    { ch: 59, w: "HygieneH", m: "Cleanliness", h: "स्वच्छता", e: "Hygiene prevents disease." },
+    { ch: 59, w: "VitaminH", m: "Essential nutrient", h: "विटामिन", e: "Vitamin C boosts health." },
+    { ch: 59, w: "Disease", m: "Illness", h: "रोग", e: "Disease spreads fast." },
+    { ch: 59, w: "RecoveryH", m: "Getting better", h: "स्वस्थ होना", e: "Recovery takes time." },
+    { ch: 59, w: "TreatmentH", m: "Medical care", h: "उपचार", e: "Treatment is necessary." },
+    { ch: 59, w: "FitnessH", m: "Good health", h: "फिटनेस", e: "Fitness is wealth." },
+    { ch: 60, w: "MessageC", m: "Information sent", h: "संदेश", e: "Send a clear message." },
+    { ch: 60, w: "Speaker", m: "One who talks", h: "वक्ता", e: "The speaker was confident." },
+    { ch: 60, w: "Listener", m: "One who hears", h: "श्रोता", e: "Be a good listener." },
+    { ch: 60, w: "ConversationC", m: "Talk", h: "बातचीत", e: "We had a conversation." },
+    { ch: 60, w: "ExpressC", m: "Show feelings", h: "व्यक्त करना", e: "Express your ideas." },
+    { ch: 60, w: "OpinionC", m: "Personal view", h: "राय", e: "Give your opinion." },
+    { ch: 60, w: "Discussion", m: "Detailed talk", h: "चर्चा", e: "Discussion was useful." },
+    { ch: 60, w: "PresentationC", m: "Formal speech", h: "प्रस्तुति", e: "His presentation was good." },
+    { ch: 60, w: "Language", m: "Way of speaking", h: "भाषा", e: "English is a global language." },
+    { ch: 60, w: "Feedback", m: "Response", h: "प्रतिक्रिया", e: "Feedback improves work." },
+    { ch: 61, w: "Career", m: "Job path", h: "करियर", e: "She chose her career wisely." },
+    { ch: 61, w: "Interview", m: "Job meeting", h: "साक्षात्कार", e: "He cleared the interview." },
+    { ch: 61, w: "Resume2", m: "Job profile", h: "बायोडाटा", e: "Update your resume." },
+    { ch: 61, w: "Skill2", m: "Ability", h: "कौशल", e: "Communication is a skill." },
+    { ch: 61, w: "Experience", m: "Practical knowledge", h: "अनुभव", e: "Experience matters." },
+    { ch: 61, w: "Promotion", m: "Higher position", h: "पदोन्नति", e: "She got promotion." },
+    { ch: 61, w: "Salary", m: "Monthly pay", h: "वेतन", e: "Salary was increased." },
+    { ch: 61, w: "Employer", m: "Boss/company", h: "नियोक्ता", e: "Employer hired him." },
+    { ch: 61, w: "Employee", m: "Worker", h: "कर्मचारी", e: "Employee worked hard." },
+    { ch: 61, w: "Opportunity", m: "Chance", h: "अवसर", e: "Grab the opportunity." },
+    { ch: 62, w: "LoanB", m: "Borrowed money", h: "ऋण", e: "He took a loan." },
+    { ch: 62, w: "InterestB", m: "Extra charge", h: "ब्याज", e: "Interest rate is high." },
+    { ch: 62, w: "DepositB", m: "Put money", h: "जमा", e: "Deposit cash safely." },
+    { ch: 62, w: "WithdrawB", m: "Take money out", h: "निकासी", e: "Withdraw money carefully." },
+    { ch: 62, w: "Cheque", m: "Bank paper", h: "चेक", e: "Write a cheque." },
+    { ch: 62, w: "ATMB", m: "Cash machine", h: "एटीएम", e: "ATM is nearby." },
+    { ch: 62, w: "SavingsB", m: "Money saved", h: "बचत", e: "Savings are useful." },
+    { ch: 62, w: "Credit", m: "Borrowing facility", h: "उधार सुविधा", e: "Credit card helps." },
+    { ch: 62, w: "Debit", m: "Direct payment", h: "डेबिट", e: "Debit from account." },
+    { ch: 62, w: "FinanceB", m: "Money management", h: "वित्त", e: "Finance is important." },
+    { ch: 63, w: "InternetT", m: "Online network", h: "इंटरनेट", e: "Internet connects people." },
+    { ch: 63, w: "Browser", m: "Internet tool", h: "ब्राउज़र", e: "Open the browser." },
+    { ch: 63, w: "PasswordT", m: "Secret key", h: "पासवर्ड", e: "Keep password safe." },
+    { ch: 63, w: "ApplicationT", m: "Mobile app", h: "एप्लिकेशन", e: "Install application." },
+    { ch: 63, w: "DeviceT", m: "Electronic tool", h: "उपकरण", e: "Device is charging." },
+    { ch: 63, w: "UpdateT", m: "Improve version", h: "अपडेट", e: "Update your phone." },
+    { ch: 63, w: "SecurityT", m: "Protection", h: "सुरक्षा", e: "Security is necessary." },
+    { ch: 63, w: "Cloud", m: "Online storage", h: "क्लाउड", e: "Save in cloud." },
+    { ch: 64, w: "School", m: "Learning place", h: "स्कूल", e: "School reopens Monday." },
+    { ch: 64, w: "Teacher", m: "Educator", h: "शिक्षक", e: "Teacher explained well." },
+    { ch: 64, w: "Student", m: "Learner", h: "छात्र", e: "Student studied hard." },
+    { ch: 64, w: "Exam", m: "Test", h: "परीक्षा", e: "Exam is tomorrow." },
+    { ch: 64, w: "Subject", m: "Topic", h: "विषय", e: "Maths is tough subject." },
+    { ch: 64, w: "Homework", m: "Study task", h: "गृहकार्य", e: "Finish homework." },
+    { ch: 64, w: "Result", m: "Outcome", h: "परिणाम", e: "Result was good." },
+    { ch: 64, w: "Grade", m: "Marks level", h: "श्रेणी", e: "She got A grade." },
+    { ch: 64, w: "Library", m: "Book room", h: "पुस्तकालय", e: "Visit library." },
+    { ch: 64, w: "KnowledgeE", m: "Understanding", h: "ज्ञान", e: "Knowledge is power." },
+    { ch: 65, w: "RoutineDL", m: "Daily plan", h: "दिनचर्या", e: "Follow routine." },
+    { ch: 65, w: "Morning", m: "Early day", h: "सुबह", e: "Morning is fresh." },
+    { ch: 65, w: "Evening", m: "Late day", h: "शाम", e: "Evening is calm." },
+    { ch: 65, w: "MarketDL", m: "Shopping place", h: "बाजार", e: "Go to market." },
+    { ch: 65, w: "Family", m: "Close relatives", h: "परिवार", e: "Family supports us." },
+    { ch: 65, w: "Friend", m: "Close companion", h: "मित्र", e: "He is my friend." },
+    { ch: 65, w: "TravelDL", m: "Journey", h: "यात्रा", e: "Travel safely." },
+    { ch: 65, w: "FoodDL", m: "Meal", h: "भोजन", e: "Food is tasty." },
+    { ch: 65, w: "Home", m: "Living place", h: "घर", e: "Home feels safe." },
+    { ch: 1, w: "Ability", m: "Power to do something", h: "क्षमता", e: "He has the ability to win." }
+
+    // Note: Saare 123 words logic automatically mix kar lega agar aapne array pura rakha hai. Main example ke liye main words yahan dale hain taaki code fast chale. 
+    // (Aap apne previous code ke saare words yahan paste kar sakte hain).
+];
+
+let currentWords = [], qIdx = 0, score = 0, timerInterval, timeLeft = 15;
+
+window.onload = () => {
+    updateLeaderboard();
+    const select = document.getElementById('chapter-select');
+    select.innerHTML = '<option value="all">📚 Mix All (Saare Chapters)</option>';
+    const chapters = [...new Set(wordBank.map(item => item.ch))].sort((a, b) => a - b);
+    chapters.forEach(chNum => {
+        let option = document.createElement('option');
+        option.value = chNum; option.innerText = `Chapter ${chNum}`;
+        select.appendChild(option);
+    });
+};
+
+function startQuiz() {
+    initAudio(); // Start audio engine
+    const nameInput = document.getElementById('user-name').value.trim();
+    if(!nameInput) { alert("Pehle student ka naam likhein!"); return; }
+
+    const ch = document.getElementById('chapter-select').value;
+    currentWords = (ch === "all") ? [...wordBank] : wordBank.filter(w => w.ch == ch);
+    
+    if(currentWords.length === 0) { alert("Data error!"); return; }
+    
+    // Mix questions
+    currentWords.sort(() => 0.5 - Math.random()); 
+    currentWords = currentWords.slice(0, 10); // Play 10 questions max per game for fun
+    
+    qIdx = 0; score = 0;
+    document.getElementById('display-name').innerText = nameInput;
+    document.getElementById('score').innerText = "0";
+    document.getElementById('setup-area').style.display = 'none';
+    document.getElementById('quiz-area').style.display = 'block';
+    
+    loadQuestion();
+}
+
+function loadQuestion() {
+    if(qIdx >= currentWords.length) { showResult(); return; }
+
+    const q = currentWords[qIdx];
+    document.getElementById('target-word').innerText = q.w;
+    document.getElementById('next-btn').style.display = 'none';
+    document.getElementById('explanation').style.display = 'none';
+    
+    // Generate & Shuffle Options
+    let options = [q.m];
+    while(options.length < 4) {
+        let rand = wordBank[Math.floor(Math.random()*wordBank.length)].m;
+        if(!options.includes(rand)) options.push(rand);
+    }
+    options.sort(() => 0.5 - Math.random()); 
+
+    const container = document.getElementById('options-container');
+    container.innerHTML = '';
+    options.forEach(opt => {
+        let btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.innerText = opt;
+        btn.onclick = () => handleAnswer(btn, opt, q);
+        container.appendChild(btn);
+    });
+
+    startTimer(q);
+}
+
+function startTimer(q) {
+    timeLeft = 15;
+    document.getElementById('timer-display').innerText = `⏳ ${timeLeft}s`;
+    clearInterval(timerInterval);
+    
+    timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timer-display').innerText = `⏳ ${timeLeft}s`;
+        if (timeLeft <= 0) {
+            clearInterval(timerInterval);
+            handleAnswer(null, null, q); // Timeout = Wrong Answer
+        }
+    }, 1000);
+}
+
+function handleAnswer(btn, selectedOption, q) {
+    clearInterval(timerInterval); // Stop timer
+    document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
+    
+    document.getElementById('hindi-m').innerText = q.h;
+    document.getElementById('example-s').innerText = q.e;
+    document.getElementById('explanation').style.display = 'block';
+    
+    if (selectedOption === q.m) {
+        playSound('correct');
+        btn.classList.add('correct');
+        score += 10; // 10 points for correct
+        document.getElementById('score').innerText = score;
+    } else {
+        playSound('wrong');
+        if (btn) btn.classList.add('wrong');
+        document.querySelectorAll('.option-btn').forEach(b => { 
+            if(b.innerText === q.m) b.classList.add('correct'); 
+        });
+    }
+    document.getElementById('next-btn').style.display = 'block';
+}
+
+function nextQuestion() { qIdx++; loadQuestion(); }
+
+function showResult() {
+    document.getElementById('quiz-area').style.display = 'none';
+    document.getElementById('result-area').style.display = 'block';
+    document.getElementById('final-score').innerText = score;
+    document.getElementById('total-q').innerText = currentWords.length * 10;
+    
+    saveScore(document.getElementById('user-name').value, score);
+}
+
+// --- LEADERBOARD LOGIC ---
+function updateLeaderboard() {
+    const scores = JSON.parse(localStorage.getItem('mfeScores')) || [];
+    scores.sort((a, b) => b.score - a.score); // Highest first
+    
+    const lbList = document.getElementById('lb-list');
+    lbList.innerHTML = '';
+    
+    if(scores.length === 0) {
+        lbList.innerHTML = '<li style="text-align:center; color:#94a3b8;">Abhi koi champion nahi hai!</li>';
+    } else {
+        scores.slice(0, 5).forEach((s) => {
+            let li = document.createElement('li');
+            li.innerHTML = `<span style="float:left;">${s.name}</span> <span style="float:right; color:var(--s);">${s.score} Pts</span><div style="clear:both;"></div>`;
+            lbList.appendChild(li);
+        });
+    }
+}
+
+function saveScore(name, score) {
+    const scores = JSON.parse(localStorage.getItem('mfeScores')) || [];
+    scores.push({name, score});
+    localStorage.setItem('mfeScores', JSON.stringify(scores));
+}
+
+function speakWord() {
+    let msg = new SpeechSynthesisUtterance(document.getElementById('target-word').innerText);
+    msg.lang = 'en-US';
+    window.speechSynthesis.speak(msg);
+}
+</script>
+</body>
+</html>
