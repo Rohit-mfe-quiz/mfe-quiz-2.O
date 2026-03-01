@@ -1,0 +1,15 @@
+{
+  "short_name": "MFE QUIZ",
+  "name": "MFE QUIZZ by Rohit Sir",
+  "icons": [
+    {
+      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/English_language_icon.svg/192px-English_language_icon.svg.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#5865f2",
+  "display": "standalone",
+  "theme_color": "#5865f2"
+}
