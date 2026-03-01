@@ -5,7 +5,8 @@
     {
       "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/English_language_icon.svg/192px-English_language_icon.svg.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     }
   ],
   "start_url": "./index.html",
