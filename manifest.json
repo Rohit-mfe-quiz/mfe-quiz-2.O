@@ -3,9 +3,9 @@
   "name": "MFE QUIZZ by Rohit Sir",
   "icons": [
     {
-      "src": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/English_language_icon.svg/192px-English_language_icon.svg.png",
+      "src": "https://img.icons8.com/color/512/reading.png",
       "type": "image/png",
-      "sizes": "192x192",
+      "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
