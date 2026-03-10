@@ -659,9 +659,9 @@ const wordBank = [
 { ch: 50, w: "Influence", m: "Ability to affect others", h: "प्रभाव", e: "Teachers have great influence on students." },
 { ch: 50, w: "Creativity", m: "Ability to create new ideas", h: "रचनात्मकता", e: "Creativity makes learning interesting." },
 { ch: 50, w: "Passion", m: "Strong enthusiasm", h: "जुनून", e: "He works with passion." },
-  { ch: 50, w: "Dedication", m: "Strong commitment", h: "समर्पण", e: "Success requires dedication." },
-   {  ch: 50, w: "Future", m: "Time that is yet to come", h: "भविष्य", e: "Education builds a bright future." }
-    { ch: 51, w: "Widow", m: "A woman whose husband has died", h: "विधवा", e: "The widow lived with her son Jack." },
+{ ch: 50, w: "Dedication", m: "Strong commitment", h: "समर्पण", e: "Success requires dedication." },
+{  ch: 50, w: "Future", m: "Time that is yet to come", h: "भविष्य", e: "Education builds a bright future." },
+{ ch: 51, w: "Widow", m: "A woman whose husband has died", h: "विधवा", e: "The widow lived with her son Jack." },
 { ch: 51, w: "Cow", m: "A farm animal that gives milk", h: "गाय", e: "Jack had a cow named Milky-White." },
 { ch: 51, w: "Milk", m: "A white liquid produced by cows", h: "दूध", e: "The cow gave milk every morning." },
 { ch: 51, w: "Market", m: "A place where people buy and sell goods", h: "बाज़ार", e: "Jack went to the market." },
@@ -868,7 +868,8 @@ window.onload = () => {
     const chapters = [...new Set(wordBank.map(item => item.ch))].sort((a, b) => a - b);
     chapters.forEach(chNum => {
         let option = document.createElement('option');
-        option.value = chNum; option.innerText = `Chapter ${chNum}`;
+        option.value = chNum;
+        option.innerText = `Chapter ${chNum}`;
         select.appendChild(option);
     });
 };
@@ -951,7 +952,7 @@ function handleAnswer(btn, selectedOption, q) {
     if (selectedOption === q.m) {
         playSound('correct');
         btn.classList.add('correct');
-        score += 10; // 1 points for correct
+        score += 10; //10 points for correct
         document.getElementById('score').innerText = score;
     } else {
         playSound('wrong');
@@ -1008,6 +1009,7 @@ function speakWord() {
 </body>
 
 </html>
+
 
 
 
