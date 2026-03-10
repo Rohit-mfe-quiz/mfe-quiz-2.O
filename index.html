@@ -874,19 +874,44 @@ window.onload = () => {
     });
 };
 
-function startQuiz() {
-    initAudio(); // Start audio engine
-    const nameInput = document.getElementById('user-name').value.trim();
-    if(!nameInput) { alert("Pehle student ka naam likhein!"); return; }
+let ch = document.getElementById("chapter-select").value;
 
-    const ch = document.getElementById('chapter-select').value;
-    currentWords = (ch === "all") ? [...wordBank] : wordBank.filter(w => w.ch == ch);
-    
-    if(currentWords.length === 0) { alert("Data error!"); return; }
+if (ch === "all") {
+
+    // chapter wise group
+    let chapterMap = {};
+    wordBank.forEach(w => {
+        if (!chapterMap[w.ch]) chapterMap[w.ch] = [];
+        chapterMap[w.ch].push(w);
+    });
+
+    // हर chapter से 1 word
+    currentWords = [];
+    Object.values(chapterMap).forEach(arr => {
+        arr.sort(() => 0.5 - Math.random());
+        currentWords.push(arr[0]);
+    });
+
+    // बाकी words random
+    let remaining = wordBank.filter(w => !currentWords.includes(w));
+    remaining.sort(() => 0.5 - Math.random());
+
+    currentWords = currentWords.concat(remaining).slice(0, 20);
+
+} else {
+
+    currentWords = wordBank.filter(w => w.ch == ch);
+
+    // shuffle
+    currentWords.sort(() => 0.5 - Math.random());
+
+    // chapter quiz = 15 words
+    currentWords = currentWords.slice(0, 15);
+}
     
     // Mix questions
-    currentWords.sort(() => 0.5 - Math.random()); 
-    currentWords = currentWords.slice(0, 10); // Play 10 questions max per game for fun
+    currentWords = (ch === "all") ? [...wordBank] : wordBank.filter(w => w.ch == ch);  // shuffle words currentWords.sort(() => 0.5 - Math.random());  // limit words if (ch === "all") {     currentWords = currentWords.slice(0, 20);  // mix = 20 words } else {     currentWords = currentWords.slice(0, 15);  // chapter = 15 words } 
+    currentWords = currentWords.slice(0, 15); // Play 15 questions max per game for fun
     
     qIdx = 0; score = 0;
     document.getElementById('display-name').innerText = nameInput;
@@ -952,7 +977,7 @@ function handleAnswer(btn, selectedOption, q) {
     if (selectedOption === q.m) {
         playSound('correct');
         btn.classList.add('correct');
-        score += 10; //10 points for correct
+        score += 1; //10 points for correct
         document.getElementById('score').innerText = score;
     } else {
         playSound('wrong');
@@ -970,7 +995,7 @@ function showResult() {
     document.getElementById('quiz-area').style.display = 'none';
     document.getElementById('result-area').style.display = 'block';
     document.getElementById('final-score').innerText = score;
-    document.getElementById('total-q').innerText = currentWords.length * 10;
+    document.getElementById('total-q').innerText = currentWords.length;
     
     saveScore(document.getElementById('user-name').value, score);
 }
@@ -1009,6 +1034,7 @@ function speakWord() {
 </body>
 
 </html>
+
 
 
 
