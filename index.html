@@ -863,9 +863,12 @@ let currentWords = [], qIdx = 0, score = 0, timerInterval, timeLeft = 15;
 
 window.onload = () => {
     updateLeaderboard();
+
     const select = document.getElementById('chapter-select');
     select.innerHTML = '<option value="all">📚 Mix All (Saare Chapters)</option>';
+
     const chapters = [...new Set(wordBank.map(item => item.ch))].sort((a, b) => a - b);
+
     chapters.forEach(chNum => {
         let option = document.createElement('option');
         option.value = chNum;
@@ -874,9 +877,7 @@ window.onload = () => {
     });
 };
 
-let ch = document.getElementById("chapter-select").value;
-
-if (ch === "all") {
+ {
 
     // chapter wise group
     let chapterMap = {};
@@ -909,8 +910,8 @@ if (ch === "all") {
     currentWords = currentWords.slice(0, 15);
 }
     
-    // Mix questions
-    currentWords = (ch === "all") ? [...wordBank] : wordBank.filter(w => w.ch == ch);  // shuffle words currentWords.sort(() => 0.5 - Math.random());  // limit words if (ch === "all") {     currentWords = currentWords.slice(0, 20);  // mix = 20 words } else {     currentWords = currentWords.slice(0, 15);  // chapter = 15 words } 
+    // Mix question
+    shuffle words currentWords.sort(() => 0.5 - Math.random());  // limit words if (ch === "all") {     currentWords = currentWords.slice(0, 20);  // mix = 20 words } else {     currentWords = currentWords.slice(0, 15);  // chapter = 15 words } 
     currentWords = currentWords.slice(0, 15); // Play 15 questions max per game for fun
     
     qIdx = 0; score = 0;
@@ -1034,6 +1035,7 @@ function speakWord() {
 </body>
 
 </html>
+
 
 
 
