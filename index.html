@@ -3,15 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <link rel="manifest" href="manifest.json">
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#5865f2">
-    
-    <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/reading.png">
-    
     <title>MFE QUIZZ</title>
     <style>
         :root { --p: #2563eb; --s: #059669; --bg: #f8fafc; --indigo: #5865f2; --wrong: #ef4444; }
@@ -75,7 +66,7 @@
             <span id="target-word">...</span>
             <button class="speaker-btn" onclick="speakWord()">🔊</button>
         </div>
-        
+    
         <div id="options-container"></div>
         
         <div id="explanation">
@@ -95,7 +86,7 @@
 </div>
 
 <script>
-// --- AUDIO SYSTEM (No external files needed) ---
+// --- AUDIO SYSTEM ---
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx;
 
@@ -127,9 +118,8 @@ function playSound(type) {
     }
 }
 
-// --- DATABASE ---
+// --- DATABASE (Aapke sabhi words safe hain) ---
 const wordBank = [
-     
     { ch: 1, w: "Improve", m: "To become better", h: "सुधार करना", e: "I want to improve my English every day." },
     { ch: 1, w: "Practice", m: "To do something regularly to get better", h: "अभ्यास", e: "Daily practice helps in fluency." },
     { ch: 1, w: "Crucial", m: "Very important", h: "बहुत महत्वपूर्ण", e: "Listening is crucial for language learning." },
@@ -606,121 +596,121 @@ const wordBank = [
     { ch: 50, w: "Outsourcing", m: "Getting work done by another company", h: "बाहरी कंपनी से काम करवाना", e: "Many companies use outsourcing to reduce costs." },
     { ch: 50, w: "Resource", m: "Useful supply or support", h: "संसाधन", e: "The company started with limited resources." },
     { ch: 50, w: "Landscape", m: "Situation of a field or industry", h: "परिदृश्य", e: "Technology changed the business landscape." },
-   { ch: 50, w: "Foresee", m: "To predict something before it happens", h: "पूर्वानुमान लगाना", e: "Successful leaders foresee future changes." },
-{ ch: 50, w: "Distribution", m: "Process of supplying goods", h: "वितरण", e: "Good distribution helps business growth." },
-{ ch: 50, w: "Affordable", m: "Not very expensive", h: "किफायती", e: "Nirma detergent was affordable for many families." },
-{ ch: 50, w: "Innovative", m: "Introducing new ideas", h: "नवाचारी", e: "Innovative ideas help companies grow." },
-{ ch: 50, w: "Marketplace", m: "A place where buying and selling happen", h: "बाजार", e: "Nykaa created an online beauty marketplace." },
-{ ch: 50, w: "Relevant", m: "Important for the present situation", h: "प्रासंगिक", e: "Businesses must stay relevant." },
-{ ch: 50, w: "Reinvent", m: "To change something to make it new again", h: "नए रूप में बदलना", e: "Actors reinvent themselves to stay popular." },
-{ ch: 50, w: "Legendary", m: "Very famous and respected", h: "प्रसिद्ध / महान", e: "Rahul Dravid is a legendary cricketer." },
-{ ch: 50, w: "Strategy", m: "A careful plan to achieve a goal", h: "रणनीति", e: "A good strategy leads to success." },
-{ ch: 50, w: "Refine", m: "Improve something", h: "सुधारना", e: "Practice helps refine skills." },
-{ ch: 50, w: "Stereotype", m: "Fixed and oversimplified idea", h: "रूढ़िवादी धारणा", e: "The actor broke stereotypes with his roles." },
-{ ch: 50, w: "Launch", m: "To start something new", h: "शुरू करना", e: "The company launched a new product." },
-{ ch: 50, w: "Flexible", m: "Able to change easily", h: "लचीला", e: "Flexible thinking helps solve problems." },
-{ ch: 50, w: "Opportunity", m: "A good chance", h: "अवसर", e: "Education creates opportunities." },
-{ ch: 50, w: "Trend", m: "General direction of change", h: "रुझान", e: "Online shopping is a growing trend." },
-{ ch: 50, w: "Talent", m: "Natural ability", h: "प्रतिभा", e: "She has great talent in music." },
-{ ch: 50, w: "Success", m: "Achievement", h: "सफलता", e: "Success comes from hard work." },
-{ ch: 50, w: "Failure", m: "Lack of success", h: "असफलता", e: "Failure teaches valuable lessons." },
-{ ch: 50, w: "Competition", m: "Rivalry to achieve something", h: "प्रतिस्पर्धा", e: "Healthy competition improves performance." },
-{ ch: 50, w: "Confidence", m: "Self-belief", h: "आत्मविश्वास", e: "Confidence helps you face challenges." },
-{ ch: 50, w: "Career", m: "Professional life path", h: "करियर", e: "He chose teaching as his career." },
-{ ch: 50, w: "Industry", m: "Field of business activity", h: "उद्योग", e: "The IT industry is growing rapidly." },
-{ ch: 50, w: "Entrepreneur", m: "Person who starts a business", h: "उद्यमी", e: "He became a successful entrepreneur." },
-{ ch: 50, w: "Vision", m: "Ability to plan the future", h: "दूरदर्शिता", e: "Great leaders have a clear vision." },
-{ ch: 50, w: "Determination", m: "Strong decision to achieve something", h: "दृढ़ निश्चय", e: "Determination leads to success." },
-{ ch: 50, w: "Training", m: "Learning skills through practice", h: "प्रशिक्षण", e: "Athletes need regular training." },
-{ ch: 50, w: "Technique", m: "Method of doing something", h: "तकनीक / तरीका", e: "Good technique improves performance." },
-{ ch: 50, w: "Challenge", m: "Difficult task", h: "चुनौती", e: "Every challenge teaches something new." },
-{ ch: 50, w: "Achievement", m: "Accomplishment", h: "उपलब्धि", e: "Winning the match was a big achievement." },
-{ ch: 50, w: "Growth", m: "Development", h: "विकास", e: "Business growth requires effort." },
-{ ch: 50, w: "Market", m: "Place for buying and selling", h: "बाजार", e: "The company entered a new market." },
-{ ch: 50, w: "Innovation", m: "New idea or method", h: "नवाचार", e: "Innovation drives progress." },
-{ ch: 50, w: "Leadership", m: "Ability to guide others", h: "नेतृत्व", e: "Good leadership inspires people." },
-{ ch: 50, w: "Experience", m: "Knowledge gained from doing something", h: "अनुभव", e: "Experience makes a person wiser." },
-{ ch: 50, w: "Skill", m: "Ability to do something well", h: "कौशल", e: "Communication is an important skill." },
-{ ch: 50, w: "Knowledge", m: "Information and understanding", h: "ज्ञान", e: "Knowledge is power." },
-{ ch: 50, w: "Progress", m: "Movement towards improvement", h: "प्रगति", e: "The project is making good progress." },
-{ ch: 50, w: "Risk", m: "Possibility of loss or danger", h: "जोखिम", e: "Every business involves risk." },
-{ ch: 50, w: "Goal", m: "Target", h: "लक्ष्य", e: "Set your goal clearly." },
-{ ch: 50, w: "Planning", m: "Process of making plans", h: "योजना", e: "Proper planning leads to success." },
-{ ch: 50, w: "Motivation", m: "Inner drive", h: "प्रेरणा", e: "Motivation keeps you moving forward." },
-{ ch: 50, w: "Improvement", m: "Becoming better", h: "सुधार", e: "Improvement takes time." },
-{ ch: 50, w: "Learning", m: "Gaining knowledge", h: "सीखना", e: "Learning never stops." },
-{ ch: 50, w: "Adapt", m: "Adjust to new conditions", h: "अनुकूल होना", e: "Animals adapt to their environment." },
-{ ch: 50, w: "Inspire", m: "Encourage someone", h: "प्रेरित करना", e: "Great teachers inspire students." },
-{ ch: 50, w: "Evolve", m: "Develop gradually", h: "विकसित होना", e: "Technology continues to evolve." },
-{ ch: 50, w: "Improve", m: "Make something better", h: "बेहतर बनाना", e: "Practice helps improve skills." },
-{ ch: 50, w: "Support", m: "Help or assistance", h: "समर्थन", e: "Family support is important." },
-{ ch: 50, w: "Responsibility", m: "Duty or obligation", h: "जिम्मेदारी", e: "Parents have responsibility for their children." },
-{ ch: 50, w: "Champion", m: "Winner or top performer", h: "विजेता", e: "She became the champion of the tournament." },
-{ ch: 50, w: "Influence", m: "Ability to affect others", h: "प्रभाव", e: "Teachers have great influence on students." },
-{ ch: 50, w: "Creativity", m: "Ability to create new ideas", h: "रचनात्मकता", e: "Creativity makes learning interesting." },
-{ ch: 50, w: "Passion", m: "Strong enthusiasm", h: "जुनून", e: "He works with passion." },
-{ ch: 50, w: "Dedication", m: "Strong commitment", h: "समर्पण", e: "Success requires dedication." },
-{  ch: 50, w: "Future", m: "Time that is yet to come", h: "भविष्य", e: "Education builds a bright future." },
-{ ch: 51, w: "Widow", m: "A woman whose husband has died", h: "विधवा", e: "The widow lived with her son Jack." },
-{ ch: 51, w: "Cow", m: "A farm animal that gives milk", h: "गाय", e: "Jack had a cow named Milky-White." },
-{ ch: 51, w: "Milk", m: "A white liquid produced by cows", h: "दूध", e: "The cow gave milk every morning." },
-{ ch: 51, w: "Market", m: "A place where people buy and sell goods", h: "बाज़ार", e: "Jack went to the market." },
-{ ch: 51, w: "Sell", m: "To give something in exchange for money", h: "बेचना", e: "Jack wanted to sell the cow." },
-{ ch: 51, w: "Wring", m: "To twist something especially hands in worry", h: "मरोड़ना", e: "The mother was wringing her hands." },
-{ ch: 51, w: "Cheer", m: "To make someone happy", h: "खुश करना", e: "Jack tried to cheer his mother." },
-{ ch: 51, w: "Work", m: "A job or task", h: "काम", e: "Jack wanted to find work." },
-{ ch: 51, w: "Shop", m: "A place where goods are sold", h: "दुकान", e: "His mother wanted to open a shop." },
-{ ch: 51, w: "Halter", m: "A rope used to control an animal", h: "जानवर की रस्सी", e: "Jack held the cow’s halter." },
-{ ch: 51, w: "Funny", m: "Strange or unusual", h: "अजीब", e: "Jack met a funny old man." },
-{ ch: 51, w: "Wonder", m: "To feel curious", h: "आश्चर्य करना", e: "Jack wondered how the man knew his name." },
-{ ch: 51, w: "Proper", m: "Suitable or correct", h: "उचित", e: "The man said Jack looked proper to sell cows." },
-{ ch: 51, w: "Bean", m: "A seed used to grow a plant", h: "सेम", e: "The old man gave Jack beans." },
-{ ch: 51, w: "Sharp", m: "Intelligent or quick-thinking", h: "तेज दिमाग", e: "Jack gave a sharp answer." },
-{ ch: 51, w: "Pocket", m: "A small bag in clothes for carrying things", h: "जेब", e: "Jack put the beans in his pocket." },
-{ ch: 51, w: "Magical", m: "Having special powers", h: "जादुई", e: "The beans were magical." },
-{ ch: 51, w: "Guess", m: "To try to answer without knowing exactly", h: "अनुमान लगाना", e: "His mother tried to guess the price." },
-{ ch: 51, w: "Fool", m: "A person who acts without thinking", h: "मूर्ख", e: "She called Jack a fool." },
-{ ch: 51, w: "Idiot", m: "A very foolish person", h: "बेवकूफ", e: "She angrily called him an idiot." },
-{ ch: 51, w: "Window", m: "An opening in a wall for light and air", h: "खिड़की", e: "She threw the beans out of the window." },
-{ ch: 51, w: "Attic", m: "A room under the roof", h: "अटारी", e: "Jack slept in the attic." },
-{ ch: 51, w: "Sleep", m: "To rest with eyes closed", h: "सोना", e: "Jack fell asleep quickly." },
-{ ch: 51, w: "Garden", m: "A place where plants grow", h: "बगीचा", e: "The beans fell into the garden." },
-{ ch: 51, w: "Beanstalk", m: "The tall plant grown from beans", h: "सेम का पौधा", e: "A huge beanstalk grew." },
-{ ch: 51, w: "Climb", m: "To go up using hands and feet", h: "चढ़ना", e: "Jack climbed the beanstalk." },
-{ ch: 51, w: "Sky", m: "The space above the earth", h: "आकाश", e: "The beanstalk reached the sky." },
-{ ch: 51, w: "Road", m: "A path for travel", h: "सड़क", e: "Jack walked on a long road." },
-{ ch: 51, w: "House", m: "A building where people live", h: "घर", e: "Jack saw a huge house." },
-{ ch: 51, w: "Doorstep", m: "The step in front of a door", h: "दरवाज़े की सीढ़ी", e: "The woman stood on the doorstep." },
-{ ch: 51, w: "Hungry", m: "Feeling the need for food", h: "भूखा", e: "Jack was very hungry." },
-{ ch: 51, w: "Bread", m: "Food made from flour and baked", h: "रोटी / ब्रेड", e: "She gave him bread." },
-{ ch: 51, w: "Cheese", m: "Food made from milk", h: "पनीर", e: "Jack ate bread and cheese." },
-{ ch: 51, w: "Jug", m: "A container for liquids", h: "घड़ा / जग", e: "She gave him a jug of milk." },
-{ ch: 51, w: "Tremble", m: "To shake", h: "कांपना", e: "The house began to tremble." },
-{ ch: 51, w: "Ogre", m: "A large and frightening giant", h: "राक्षस", e: "The ogre entered the house." },
-{ ch: 51, w: "Oven", m: "A closed space for baking or cooking", h: "भट्ठी / ओवन", h: "भट्ठी / ओवन", e: "Jack hid in the oven." },
-{ ch: 51, w: "Smell", m: "To sense odor with the nose", h: "सूंघना", e: "The ogre smelled a boy." },
-{ ch: 51, w: "Breakfast", m: "The first meal of the day", h: "नाश्ता", e: "The ogre ate a big breakfast." },
-{ ch: 51, w: "Chest", m: "A large box for storing things", h: "संदूक", e: "The ogre opened a chest." },
-{ ch: 51, w: "Gold", m: "A valuable yellow metal", h: "सोना", e: "The bag was full of gold." },
-{ ch: 51, w: "Count", m: "To add numbers one by one", h: "गिनना", e: "The ogre counted his gold." },
-{ ch: 51, w: "Snore", m: "A loud breathing sound during sleep", h: "खर्राटे लेना", e: "The ogre began to snore." },
-{ ch: 51, w: "Tiptoe", m: "To walk quietly on toes", h: "पंजों के बल चलना", e: "Jack moved on tiptoe." },
-{ ch: 51, w: "Pelter", m: "To run very fast", h: "तेजी से भागना", e: "Jack peltered away quickly." },
-{ ch: 51, w: "Hen", m: "A female chicken", h: "मुर्गी", e: "The hen laid golden eggs." },
-{ ch: 51, w: "Egg", m: "A round object laid by birds", h: "अंडा", e: "The hen laid an egg." },
-{ ch: 51, w: "Golden", m: "Made of gold", h: "सुनहरा", e: "The egg was golden." },
-{ ch: 51, w: "Bush", m: "A small plant with many branches", h: "झाड़ी", e: "Jack hid behind a bush." },
-{ ch: 51, w: "Copper", m: "A large metal pot", h: "तांबे का बड़ा बर्तन", e: "Jack hid inside the copper." },
-{ ch: 51, w: "Harp", m: "A musical instrument with strings", h: "वीणा जैसा वाद्य", e: "The harp sang beautifully." },
-{ ch: 51, w: "Crawl", m: "To move slowly on hands and knees", h: "रेंगना", e: "Jack crawled quietly." },
-{ ch: 51, w: "Dash", m: "To run quickly", h: "तेज दौड़ना", e: "Jack dashed toward the door." },
-{ ch: 51, w: "Ladder", m: "A structure used to climb up", h: "सीढ़ी", e: "The beanstalk looked like a ladder." },
-{ ch: 51, w: "Ax", m: "A tool used to cut wood", h: "कुल्हाड़ी", e: "Jack used an ax." },
-{ ch: 51, w: "Chop", m: "To cut something with force", h: "काटना", e: "Jack chopped the beanstalk." },
-{ ch: 51, w: "Shake", m: "To move back and forth quickly", h: "हिलना", e: "The beanstalk began to shake." },
-{ ch: 51, w: "Topple", m: "To fall down suddenly", h: "गिर पड़ना", e: "The beanstalk toppled." },
-{ ch: 51, w: "Fright", m: "A feeling of fear", h: "डर", e: "Jack’s mother stood still with fright." },
-{ ch: 51, w: "Crown", m: "The top of the head", h: "सिर का ऊपरी भाग", e: "The ogre broke his crown when he fell." },
+    { ch: 50, w: "Foresee", m: "To predict something before it happens", h: "पूर्वानुमान लगाना", e: "Successful leaders foresee future changes." },
+    { ch: 50, w: "Distribution", m: "Process of supplying goods", h: "वितरण", e: "Good distribution helps business growth." },
+    { ch: 50, w: "Affordable", m: "Not very expensive", h: "किफायती", e: "Nirma detergent was affordable for many families." },
+    { ch: 50, w: "Innovative", m: "Introducing new ideas", h: "नवाचारी", e: "Innovative ideas help companies grow." },
+    { ch: 50, w: "Marketplace", m: "A place where buying and selling happen", h: "बाजार", e: "Nykaa created an online beauty marketplace." },
+    { ch: 50, w: "Relevant", m: "Important for the present situation", h: "प्रासंगिक", e: "Businesses must stay relevant." },
+    { ch: 50, w: "Reinvent", m: "To change something to make it new again", h: "नए रूप में बदलना", e: "Actors reinvent themselves to stay popular." },
+    { ch: 50, w: "Legendary", m: "Very famous and respected", h: "प्रसिद्ध / महान", e: "Rahul Dravid is a legendary cricketer." },
+    { ch: 50, w: "Strategy", m: "A careful plan to achieve a goal", h: "रणनीति", e: "A good strategy leads to success." },
+    { ch: 50, w: "Refine", m: "Improve something", h: "सुधारना", e: "Practice helps refine skills." },
+    { ch: 50, w: "Stereotype", m: "Fixed and oversimplified idea", h: "रूढ़िवादी धारणा", e: "The actor broke stereotypes with his roles." },
+    { ch: 50, w: "Launch", m: "To start something new", h: "शुरू करना", e: "The company launched a new product." },
+    { ch: 50, w: "Flexible", m: "Able to change easily", h: "लचीला", e: "Flexible thinking helps solve problems." },
+    { ch: 50, w: "Opportunity", m: "A good chance", h: "अवसर", e: "Education creates opportunities." },
+    { ch: 50, w: "Trend", m: "General direction of change", h: "रुझान", e: "Online shopping is a growing trend." },
+    { ch: 50, w: "Talent", m: "Natural ability", h: "प्रतिभा", e: "She has great talent in music." },
+    { ch: 50, w: "Success", m: "Achievement", h: "सफलता", e: "Success comes from hard work." },
+    { ch: 50, w: "Failure", m: "Lack of success", h: "असफलता", e: "Failure teaches valuable lessons." },
+    { ch: 50, w: "Competition", m: "Rivalry to achieve something", h: "प्रतिस्पर्धा", e: "Healthy competition improves performance." },
+    { ch: 50, w: "Confidence", m: "Self-belief", h: "आत्मविश्वास", e: "Confidence helps you face challenges." },
+    { ch: 50, w: "Career", m: "Professional life path", h: "करियर", e: "He chose teaching as his career." },
+    { ch: 50, w: "Industry", m: "Field of business activity", h: "उद्योग", e: "The IT industry is growing rapidly." },
+    { ch: 50, w: "Entrepreneur", m: "Person who starts a business", h: "उद्यमी", e: "He became a successful entrepreneur." },
+    { ch: 50, w: "Vision", m: "Ability to plan the future", h: "दूरदर्शिता", e: "Great leaders have a clear vision." },
+    { ch: 50, w: "Determination", m: "Strong decision to achieve something", h: "दृढ़ निश्चय", e: "Determination leads to success." },
+    { ch: 50, w: "Training", m: "Learning skills through practice", h: "प्रशिक्षण", e: "Athletes need regular training." },
+    { ch: 50, w: "Technique", m: "Method of doing something", h: "तकनीक / तरीका", e: "Good technique improves performance." },
+    { ch: 50, w: "Challenge", m: "Difficult task", h: "चुनौती", e: "Every challenge teaches something new." },
+    { ch: 50, w: "Achievement", m: "Accomplishment", h: "उपलब्धि", e: "Winning the match was a big achievement." },
+    { ch: 50, w: "Growth", m: "Development", h: "विकास", e: "Business growth requires effort." },
+    { ch: 50, w: "Market", m: "Place for buying and selling", h: "बाजार", e: "The company entered a new market." },
+    { ch: 50, w: "Innovation", m: "New idea or method", h: "नवाचार", e: "Innovation drives progress." },
+    { ch: 50, w: "Leadership", m: "Ability to guide others", h: "नेतृत्व", e: "Good leadership inspires people." },
+    { ch: 50, w: "Experience", m: "Knowledge gained from doing something", h: "अनुभव", e: "Experience makes a person wiser." },
+    { ch: 50, w: "Skill", m: "Ability to do something well", h: "कौशल", e: "Communication is an important skill." },
+    { ch: 50, w: "Knowledge", m: "Information and understanding", h: "ज्ञान", e: "Knowledge is power." },
+    { ch: 50, w: "Progress", m: "Movement towards improvement", h: "प्रगति", e: "The project is making good progress." },
+    { ch: 50, w: "Risk", m: "Possibility of loss or danger", h: "जोखिम", e: "Every business involves risk." },
+    { ch: 50, w: "Goal", m: "Target", h: "लक्ष्य", e: "Set your goal clearly." },
+    { ch: 50, w: "Planning", m: "Process of making plans", h: "योजना", e: "Proper planning leads to success." },
+    { ch: 50, w: "Motivation", m: "Inner drive", h: "प्रेरणा", e: "Motivation keeps you moving forward." },
+    { ch: 50, w: "Improvement", m: "Becoming better", h: "सुधार", e: "Improvement takes time." },
+    { ch: 50, w: "Learning", m: "Gaining knowledge", h: "सीखना", e: "Learning never stops." },
+    { ch: 50, w: "Adapt", m: "Adjust to new conditions", h: "अनुकूल होना", e: "Animals adapt to their environment." },
+    { ch: 50, w: "Inspire", m: "Encourage someone", h: "प्रेरित करना", e: "Great teachers inspire students." },
+    { ch: 50, w: "Evolve", m: "Develop gradually", h: "विकसित होना", e: "Technology continues to evolve." },
+    { ch: 50, w: "Improve", m: "Make something better", h: "बेहतर बनाना", e: "Practice helps improve skills." },
+    { ch: 50, w: "Support", m: "Help or assistance", h: "समर्थन", e: "Family support is important." },
+    { ch: 50, w: "Responsibility", m: "Duty or obligation", h: "जिम्मेदारी", e: "Parents have responsibility for their children." },
+    { ch: 50, w: "Champion", m: "Winner or top performer", h: "विजेता", e: "She became the champion of the tournament." },
+    { ch: 50, w: "Influence", m: "Ability to affect others", h: "प्रभाव", e: "Teachers have great influence on students." },
+    { ch: 50, w: "Creativity", m: "Ability to create new ideas", h: "रचनात्मकता", e: "Creativity makes learning interesting." },
+    { ch: 50, w: "Passion", m: "Strong enthusiasm", h: "जुनून", e: "He works with passion." },
+    { ch: 50, w: "Dedication", m: "Strong commitment", h: "समर्पण", e: "Success requires dedication." },
+    { ch: 50, w: "Future", m: "Time that is yet to come", h: "भविष्य", e: "Education builds a bright future." },
+    { ch: 51, w: "Widow", m: "A woman whose husband has died", h: "विधवा", e: "The widow lived with her son Jack." },
+    { ch: 51, w: "Cow", m: "A farm animal that gives milk", h: "गाय", e: "Jack had a cow named Milky-White." },
+    { ch: 51, w: "Milk", m: "A white liquid produced by cows", h: "दूध", e: "The cow gave milk every morning." },
+    { ch: 51, w: "Market", m: "A place where people buy and sell goods", h: "बाज़ार", e: "Jack went to the market." },
+    { ch: 51, w: "Sell", m: "To give something in exchange for money", h: "बेचना", e: "Jack wanted to sell the cow." },
+    { ch: 51, w: "Wring", m: "To twist something especially hands in worry", h: "मरोड़ना", e: "The mother was wringing her hands." },
+    { ch: 51, w: "Cheer", m: "To make someone happy", h: "खुश करना", e: "Jack tried to cheer his mother." },
+    { ch: 51, w: "Work", m: "A job or task", h: "काम", e: "Jack wanted to find work." },
+    { ch: 51, w: "Shop", m: "A place where goods are sold", h: "दुकान", e: "His mother wanted to open a shop." },
+    { ch: 51, w: "Halter", m: "A rope used to control an animal", h: "जानवर की रस्सी", e: "Jack held the cow’s halter." },
+    { ch: 51, w: "Funny", m: "Strange or unusual", h: "अजीब", e: "Jack met a funny old man." },
+    { ch: 51, w: "Wonder", m: "To feel curious", h: "आश्चर्य करना", e: "Jack wondered how the man knew his name." },
+    { ch: 51, w: "Proper", m: "Suitable or correct", h: "उचित", e: "The man said Jack looked proper to sell cows." },
+    { ch: 51, w: "Bean", m: "A seed used to grow a plant", h: "सेम", e: "The old man gave Jack beans." },
+    { ch: 51, w: "Sharp", m: "Intelligent or quick-thinking", h: "तेज दिमाग", e: "Jack gave a sharp answer." },
+    { ch: 51, w: "Pocket", m: "A small bag in clothes for carrying things", h: "जेब", e: "Jack put the beans in his pocket." },
+    { ch: 51, w: "Magical", m: "Having special powers", h: "जादुई", e: "The beans were magical." },
+    { ch: 51, w: "Guess", m: "To try to answer without knowing exactly", h: "अनुमान लगाना", e: "His mother tried to guess the price." },
+    { ch: 51, w: "Fool", m: "A person who acts without thinking", h: "मूर्ख", e: "She called Jack a fool." },
+    { ch: 51, w: "Idiot", m: "A very foolish person", h: "बेवकूफ", e: "She angrily called him an idiot." },
+    { ch: 51, w: "Window", m: "An opening in a wall for light and air", h: "खिड़की", e: "She threw the beans out of the window." },
+    { ch: 51, w: "Attic", m: "A room under the roof", h: "अटारी", e: "Jack slept in the attic." },
+    { ch: 51, w: "Sleep", m: "To rest with eyes closed", h: "सोना", e: "Jack fell asleep quickly." },
+    { ch: 51, w: "Garden", m: "A place where plants grow", h: "बगीचा", e: "The beans fell into the garden." },
+    { ch: 51, w: "Beanstalk", m: "The tall plant grown from beans", h: "सेम का पौधा", e: "A huge beanstalk grew." },
+    { ch: 51, w: "Climb", m: "To go up using hands and feet", h: "चढ़ना", e: "Jack climbed the beanstalk." },
+    { ch: 51, w: "Sky", m: "The space above the earth", h: "आकाश", e: "The beanstalk reached the sky." },
+    { ch: 51, w: "Road", m: "A path for travel", h: "सड़क", e: "Jack walked on a long road." },
+    { ch: 51, w: "House", m: "A building where people live", h: "घर", e: "Jack saw a huge house." },
+    { ch: 51, w: "Doorstep", m: "The step in front of a door", h: "दरवाज़े की सीढ़ी", e: "The woman stood on the doorstep." },
+    { ch: 51, w: "Hungry", m: "Feeling the need for food", h: "भूखा", e: "Jack was very hungry." },
+    { ch: 51, w: "Bread", m: "Food made from flour and baked", h: "रोटी / ब्रेड", e: "She gave him bread." },
+    { ch: 51, w: "Cheese", m: "Food made from milk", h: "पनीर", e: "Jack ate bread and cheese." },
+    { ch: 51, w: "Jug", m: "A container for liquids", h: "घड़ा / जग", e: "She gave him a jug of milk." },
+    { ch: 51, w: "Tremble", m: "To shake", h: "कांपना", e: "The house began to tremble." },
+    { ch: 51, w: "Ogre", m: "A large and frightening giant", h: "राक्षस", e: "The ogre entered the house." },
+    { ch: 51, w: "Oven", m: "A closed space for baking or cooking", h: "भट्ठी / ओवन", e: "Jack hid in the oven." },
+    { ch: 51, w: "Smell", m: "To sense odor with the nose", h: "सूंघना", e: "The ogre smelled a boy." },
+    { ch: 51, w: "Breakfast", m: "The first meal of the day", h: "नाश्ता", e: "The ogre ate a big breakfast." },
+    { ch: 51, w: "Chest", m: "A large box for storing things", h: "संदूक", e: "The ogre opened a chest." },
+    { ch: 51, w: "Gold", m: "A valuable yellow metal", h: "सोना", e: "The bag was full of gold." },
+    { ch: 51, w: "Count", m: "To add numbers one by one", h: "गिनना", e: "The ogre counted his gold." },
+    { ch: 51, w: "Snore", m: "A loud breathing sound during sleep", h: "खर्राटे लेना", e: "The ogre began to snore." },
+    { ch: 51, w: "Tiptoe", m: "To walk quietly on toes", h: "पंजों के बल चलना", e: "Jack moved on tiptoe." },
+    { ch: 51, w: "Pelter", m: "To run very fast", h: "तेजी से भागना", e: "Jack peltered away quickly." },
+    { ch: 51, w: "Hen", m: "A female chicken", h: "मुर्गी", e: "The hen laid golden eggs." },
+    { ch: 51, w: "Egg", m: "A round object laid by birds", h: "अंडा", e: "The hen laid an egg." },
+    { ch: 51, w: "Golden", m: "Made of gold", h: "सुनहरा", e: "The egg was golden." },
+    { ch: 51, w: "Bush", m: "A small plant with many branches", h: "झाड़ी", e: "Jack hid behind a bush." },
+    { ch: 51, w: "Copper", m: "A large metal pot", h: "तांबे का बड़ा बर्तन", e: "Jack hid inside the copper." },
+    { ch: 51, w: "Harp", m: "A musical instrument with strings", h: "वीणा जैसा वाद्य", e: "The harp sang beautifully." },
+    { ch: 51, w: "Crawl", m: "To move slowly on hands and knees", h: "रेंगना", e: "Jack crawled quietly." },
+    { ch: 51, w: "Dash", m: "To run quickly", h: "तेज दौड़ना", e: "Jack dashed toward the door." },
+    { ch: 51, w: "Ladder", m: "A structure used to climb up", h: "सीढ़ी", e: "The beanstalk looked like a ladder." },
+    { ch: 51, w: "Ax", m: "A tool used to cut wood", h: "कुल्हाड़ी", e: "Jack used an ax." },
+    { ch: 51, w: "Chop", m: "To cut something with force", h: "काटना", e: "Jack chopped the beanstalk." },
+    { ch: 51, w: "Shake", m: "To move back and forth quickly", h: "हिलना", e: "The beanstalk began to shake." },
+    { ch: 51, w: "Topple", m: "To fall down suddenly", h: "गिर पड़ना", e: "The beanstalk toppled." },
+    { ch: 51, w: "Fright", m: "A feeling of fear", h: "डर", e: "Jack’s mother stood still with fright." },
+    { ch: 51, w: "Crown", m: "The top of the head", h: "सिर का ऊपरी भाग", e: "The ogre broke his crown when he fell." },
     { ch: 52, w: "Traffic", m: "Vehicles on road", h: "यातायात", e: "Traffic was heavy." },
     { ch: 52, w: "Helmet", m: "Safety headgear", h: "हेलमेट", e: "Wear a helmet." },
     { ch: 52, w: "Seatbelt", m: "Safety strap", h: "सीट बेल्ट", e: "Fasten your seatbelt." },
@@ -852,23 +842,20 @@ const wordBank = [
     { ch: 65, w: "Friend", m: "Close companion", h: "मित्र", e: "He is my friend." },
     { ch: 65, w: "Travel", m: "Journey", h: "यात्रा", e: "Travel safely." },
     { ch: 65, w: "Food", m: "Meal", h: "भोजन", e: "Food is tasty." },
-    { ch: 65, w: "Home", m: "Living place", h: "घर", e: "Home feels safe." },
-    { ch: 1, w: "Ability", m: "Power to do something", h: "क्षमता", e: "He has the ability to win." }
-
-    // Note: Saare 123 words logic automatically mix kar lega agar aapne array pura rakha hai. Main example ke liye main words yahan dale hain taaki code fast chale. 
-    // (Aap apne previous code ke saare words yahan paste kar sakte hain).
+    { ch: 65, w: "Home", m: "Living place", h: "घर", e: "Home feels safe." }
 ];
 
 let currentWords = [], qIdx = 0, score = 0, timerInterval, timeLeft = 15;
 
+// --- 1. SETUP DROPDOWN AND LEADERBOARD ---
 window.onload = () => {
     updateLeaderboard();
 
+    // Setup Chapter Dropdown dynamically
     const select = document.getElementById('chapter-select');
     select.innerHTML = '<option value="all">📚 Mix All (Saare Chapters)</option>';
 
     const chapters = [...new Set(wordBank.map(item => item.ch))].sort((a, b) => a - b);
-
     chapters.forEach(chNum => {
         let option = document.createElement('option');
         option.value = chNum;
@@ -877,44 +864,51 @@ window.onload = () => {
     });
 };
 
- {
+// --- 2. MAIN START GAME LOGIC (THIS WAS BROKEN IN YOUR TEXT FILE) ---
+function startQuiz() {
+    const nameInput = document.getElementById('user-name').value.trim();
+    const selectedCh = document.getElementById('chapter-select').value;
 
-    // chapter wise group
-    let chapterMap = {};
-    wordBank.forEach(w => {
-        if (!chapterMap[w.ch]) chapterMap[w.ch] = [];
-        chapterMap[w.ch].push(w);
-    });
+    if (!nameInput) {
+        alert("Kripya apna naam darj karein! (Please enter your name)");
+        return;
+    }
 
-    // हर chapter से 1 word
-    currentWords = [];
-    Object.values(chapterMap).forEach(arr => {
-        arr.sort(() => 0.5 - Math.random());
-        currentWords.push(arr[0]);
-    });
+    initAudio(); // Start audio context on user click
 
-    // बाकी words random
-    let remaining = wordBank.filter(w => !currentWords.includes(w));
-    remaining.sort(() => 0.5 - Math.random());
+    if (selectedCh === "all") {
+        // Mix Game Logic: Take 1 random word from each chapter first
+        let chapterMap = {};
+        wordBank.forEach(w => {
+            if (!chapterMap[w.ch]) chapterMap[w.ch] = [];
+            chapterMap[w.ch].push(w);
+        });
+        
+        currentWords = [];
+        Object.values(chapterMap).forEach(arr => {
+            arr.sort(() => 0.5 - Math.random());
+            currentWords.push(arr[0]);
+        });
+        
+        // Fill remaining words randomly
+        let remaining = wordBank.filter(w => !currentWords.includes(w));
+        remaining.sort(() => 0.5 - Math.random());
+        currentWords = currentWords.concat(remaining).slice(0, 20); // Play 20 max questions
+    } else {
+        // Single Chapter Logic
+        currentWords = wordBank.filter(w => w.ch == parseInt(selectedCh));
+        currentWords.sort(() => 0.5 - Math.random());
+        currentWords = currentWords.slice(0, 15); // Play 15 max questions
+    }
 
-    currentWords = currentWords.concat(remaining).slice(0, 20);
-
-} else {
-
-    currentWords = wordBank.filter(w => w.ch == ch);
-
-    // shuffle
-    currentWords.sort(() => 0.5 - Math.random());
-
-    // chapter quiz = 15 words
-    currentWords = currentWords.slice(0, 15);
-}
+    if (currentWords.length === 0) {
+        alert("Is chapter mein koi words nahi hain!");
+        return;
+    }
     
-    // Mix question
-    shuffle words currentWords.sort(() => 0.5 - Math.random());  // limit words if (ch === "all") {     currentWords = currentWords.slice(0, 20);  // mix = 20 words } else {     currentWords = currentWords.slice(0, 15);  // chapter = 15 words } 
-    currentWords = currentWords.slice(0, 15); // Play 15 questions max per game for fun
-    
-    qIdx = 0; score = 0;
+    // Reset Variables and UI
+    qIdx = 0;
+    score = 0;
     document.getElementById('display-name').innerText = nameInput;
     document.getElementById('score').innerText = "0";
     document.getElementById('setup-area').style.display = 'none';
@@ -923,6 +917,7 @@ window.onload = () => {
     loadQuestion();
 }
 
+// --- 3. QUIZ LOGIC ---
 function loadQuestion() {
     if(qIdx >= currentWords.length) { showResult(); return; }
 
@@ -948,7 +943,7 @@ function loadQuestion() {
         btn.onclick = () => handleAnswer(btn, opt, q);
         container.appendChild(btn);
     });
-
+    
     startTimer(q);
 }
 
@@ -956,7 +951,6 @@ function startTimer(q) {
     timeLeft = 15;
     document.getElementById('timer-display').innerText = `⏳ ${timeLeft}s`;
     clearInterval(timerInterval);
-    
     timerInterval = setInterval(() => {
         timeLeft--;
         document.getElementById('timer-display').innerText = `⏳ ${timeLeft}s`;
@@ -970,15 +964,14 @@ function startTimer(q) {
 function handleAnswer(btn, selectedOption, q) {
     clearInterval(timerInterval); // Stop timer
     document.querySelectorAll('.option-btn').forEach(b => b.disabled = true);
-    
     document.getElementById('hindi-m').innerText = q.h;
     document.getElementById('example-s').innerText = q.e;
     document.getElementById('explanation').style.display = 'block';
     
     if (selectedOption === q.m) {
         playSound('correct');
-        btn.classList.add('correct');
-        score += 1; //10 points for correct
+        if (btn) btn.classList.add('correct');
+        score += 10; // 10 points for correct
         document.getElementById('score').innerText = score;
     } else {
         playSound('wrong');
@@ -990,7 +983,10 @@ function handleAnswer(btn, selectedOption, q) {
     document.getElementById('next-btn').style.display = 'block';
 }
 
-function nextQuestion() { qIdx++; loadQuestion(); }
+function nextQuestion() { 
+    qIdx++; 
+    loadQuestion();
+}
 
 function showResult() {
     document.getElementById('quiz-area').style.display = 'none';
@@ -998,10 +994,10 @@ function showResult() {
     document.getElementById('final-score').innerText = score;
     document.getElementById('total-q').innerText = currentWords.length;
     
-    saveScore(document.getElementById('user-name').value, score);
+    saveScore(document.getElementById('user-name').value.trim(), score);
 }
 
-// --- LEADERBOARD LOGIC ---
+// --- 4. LEADERBOARD LOGIC ---
 function updateLeaderboard() {
     const scores = JSON.parse(localStorage.getItem('mfeScores')) || [];
     scores.sort((a, b) => b.score - a.score); // Highest first
@@ -1026,6 +1022,7 @@ function saveScore(name, score) {
     localStorage.setItem('mfeScores', JSON.stringify(scores));
 }
 
+// --- 5. TEXT TO SPEECH ---
 function speakWord() {
     let msg = new SpeechSynthesisUtterance(document.getElementById('target-word').innerText);
     msg.lang = 'en-US';
@@ -1033,13 +1030,4 @@ function speakWord() {
 }
 </script>
 </body>
-
 </html>
-
-
-
-
-
-
-
-
