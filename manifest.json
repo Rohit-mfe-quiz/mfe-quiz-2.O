@@ -1,16 +1,20 @@
 {
-  "short_name": "MFE QUIZ",
-  "name": "MFE QUIZZ by Rohit Sir",
+  "name": "MFE QUIZZ",
+  "short_name": "MFE Quiz",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#5865f2",
   "icons": [
     {
+      "src": "https://img.icons8.com/color/192/reading.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
       "src": "https://img.icons8.com/color/512/reading.png",
-      "type": "image/png",
       "sizes": "512x512",
-      "purpose": "any maskable"
+      "type": "image/png"
     }
-  ],
-  "start_url": "./index.html",
-  "background_color": "#5865f2",
-  "display": "standalone",
-  "theme_color": "#5865f2"
+  ]
 }
