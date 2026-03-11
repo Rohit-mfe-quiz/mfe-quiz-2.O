@@ -971,7 +971,7 @@ function handleAnswer(btn, selectedOption, q) {
     if (selectedOption === q.m) {
         playSound('correct');
         if (btn) btn.classList.add('correct');
-        score += 10; // 10 points for correct
+        score += 1; // 1 points for correct
         document.getElementById('score').innerText = score;
     } else {
         playSound('wrong');
@@ -1031,3 +1031,4 @@ function speakWord() {
 </script>
 </body>
 </html>
+
